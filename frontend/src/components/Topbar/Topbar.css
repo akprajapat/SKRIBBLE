@@ -1,0 +1,7 @@
+.Topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e7e7e7;
+  background: #fafafa;
+}
