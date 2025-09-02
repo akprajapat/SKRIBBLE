@@ -1,0 +1,59 @@
+.private-room {
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.dropdowns{
+    margin-top: 5vh;
+    display: flex;
+    height: 30vh;
+}
+
+.dropdown-container {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  width: 40vw;
+  height: auto;
+  position: relative;
+  margin-left: 0%;
+  margin-right: 0;
+  gap: 10vw;
+}
+
+.start-btn {
+  position: relative;
+  font-weight: bold;
+  padding: 10px 20px;
+  height: auto;
+  width: 80vw;
+  align-self: center;
+
+}
+
+button {
+  background-color: rgb(26, 196, 26);
+  border-radius: 5%;
+  border: 2px solid green;
+  color: white;
+  text-align: center;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: green
+} 
+
+.player-chat-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 0;
+}
