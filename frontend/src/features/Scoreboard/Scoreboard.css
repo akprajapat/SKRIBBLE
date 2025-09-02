@@ -1,0 +1,31 @@
+.Scoreboard {
+  padding: 10px 12px;
+  background: #fafafa;
+  border-top: 1px solid #eee;
+}
+
+.Scoreboard h4 {
+  margin: 0 0 8px 0;
+}
+
+.Scoreboard ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.Scoreboard li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.Scoreboard__name {
+  font-weight: 600;
+}
+
+.Scoreboard__score {
+  font-weight: 700;
+}

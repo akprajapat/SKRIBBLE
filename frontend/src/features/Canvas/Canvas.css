@@ -1,0 +1,121 @@
+.canvas-wrapper {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6fb;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.canvas-toolbar {
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100vw;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-group button {
+  border: none;
+  background: #f0f0f0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-group button:hover {
+  background: #e2e2e2;
+  transform: scale(1.05);
+}
+
+.tool-group button.active {
+  background: grey;
+  color: #fff;
+}
+
+.tool-group input[type="color"] {
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.tool-group input[type="range"] {
+  width: 25vw;
+  cursor: pointer;
+}
+
+.palette-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.palette{
+  display: flex;
+  gap: 10px;
+}
+.current-tool{
+  margin-right: auto;
+  font-size: 20px;
+}
+
+.Swatch {
+  width: 28px;
+  height: 28px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s, border 0.2s;
+}
+
+.Swatch:hover {
+  transform: scale(1.1);
+}
+
+.Swatch.active {
+  border: 2px solid #222;
+  transform: scale(1.15);
+}
+
+.Canvas {
+  height: 50vh;
+  max-height: 600px;
+  min-height: 300px;
+  width: 100vw;
+  max-width: 900px;
+  min-width: 450px;
+
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+}
+
+.Canvas--active {
+  cursor: crosshair;
+}
+
+.Canvas--spectator {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
