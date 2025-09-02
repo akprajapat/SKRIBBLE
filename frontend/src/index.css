@@ -1,0 +1,26 @@
+button {
+  background-color: rgb(26, 196, 26);
+  border-radius: 5%;
+  border: 2px solid green;
+  color: white;
+  text-align: center;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: green
+} 
+
+input {
+  border-radius: 5px;
+  border: 2px solid lightgrey;
+  font-size: 16px;
+  padding: 10px;
+}
+
+body {
+    font-size: 16px;
+    font-family: sans-serif;
+}
