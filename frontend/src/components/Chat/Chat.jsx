@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Chat.css";
 import { useGame } from "../../context/GameContext";
 import { useSocket } from "../../context/SocketContext";
+import { guessWordEvent } from "../../services/emitGameEvents";
 
 export default function Chat() {
   const { gameState } = useGame();
@@ -19,19 +20,10 @@ export default function Chat() {
     const text = msg.trim();
     if (!text) return;
 
-    socket.emit("guessWord", {
-      roomId: gameState.roomId,
-      playerId: gameState.playerId,
-      guess: text
-    });
-
-    socket.emit("chat", {
-      roomId: gameState.roomId,
-      username: gameState.username,
-      message: text
-    });
-
+    guessWordEvent(gameState.roomId, gameState.playerId, text);
+    chatEvent(gameState.roomId, gameState.playerId, text);
     setMsg("");
+
   };
 
   return (

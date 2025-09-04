@@ -39,11 +39,6 @@ const roomEventHandlers = {
   HINT_GENERATED: (payload, setGameState) =>
     setGameState((prev) => ({ ...prev, hints: [...prev.hints, payload.hint] })),
 
-  CLEAR_CANVAS: (_, setGameState) => setGameState((prev) => ({ ...prev, drawings: [] })),
-
-  DRAW: (payload, setGameState) =>
-    setGameState((prev) => ({ ...prev, drawings: [...prev.drawings, payload.strokeData] })),
-
   GAME_ENDED: (_, setGameState, resetGame) => resetGame(),
 };
 

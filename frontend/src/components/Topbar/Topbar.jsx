@@ -1,17 +1,21 @@
 import "./Topbar.css";
 import Timer from "../Timer/Timer"
+import { useGame } from "../../context/GameContext";
 
-export default function Topbar({ round, totalRounds, word, timeLeft }) {
+
+export default function Topbar() {
+  const { getRound, getTotalRounds, getWord, getTimeLeft } = useGame();
+
   return (
     <header className="Topbar">
       <div className="Topbar__round">
-        Round: {round} / {totalRounds}
+        Round: {getRound()} / {getTotalRounds()}
       </div>
       <div className="Topbar__word">
-         word : {word}
+         word : {getWord()}
       </div>
-      <Timer timeLeft={timeLeft} /> 
-
+      <Timer timeLeft={getTimeLeft()} /> 
     </header>
   );
 }
+

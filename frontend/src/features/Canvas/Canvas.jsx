@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import "./Canvas.css";
 import { useSocket } from "../../context/SocketContext";
-
+import { onFillEvent, clearCanvasEvent, drawStrokeEvent } from "../../services/emitGameEvents";
 
 export default function Canvas({isDrawer,roomId}) {
   const canvasRef = useRef(null);
@@ -77,7 +77,20 @@ export default function Canvas({isDrawer,roomId}) {
       const cur = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       setRedoStack((r) => [...r, cur]);
       ctx.putImageData(prev, 0, 0);
+      emitCanvasSnapshot();
     } catch (_) {}
+  };
+
+  const getCanvasImage = () => {
+    if (!canvasRef.current) return null;
+    return canvasRef.current.toDataURL("image/png"); // Base64 image string
+  };
+
+  const emitCanvasSnapshot = () => {
+    const image = getCanvasImage();
+    if (image) {
+      socket.emit("CANVAS_SYNC", { roomId, image });
+    }
   };
 
   const redo = () => {
@@ -89,6 +102,7 @@ export default function Canvas({isDrawer,roomId}) {
       const cur = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       setUndoStack((u) => [...u, cur]);
       ctx.putImageData(nxt, 0, 0);
+      emitCanvasSnapshot();
     } catch (_) {}
   };
 
@@ -97,7 +111,7 @@ export default function Canvas({isDrawer,roomId}) {
     saveState();
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
   };
@@ -177,16 +191,8 @@ export default function Canvas({isDrawer,roomId}) {
 
     if (tool === "fill") {
       saveState();
-      // local fill
       floodFillLocal(x, y, color);
-      // broadcast fill
-      socket.emit("fillBucket", {
-        roomId: roomId,
-        x,
-        y,
-        color,
-        tolerance: 25,
-      });
+      onFillEvent(roomId, { x, y, color, tolerance: 25 });
       return;
     }
 
@@ -225,8 +231,7 @@ export default function Canvas({isDrawer,roomId}) {
     ctx.stroke();
 
     // broadcast stroke
-    socket.emit("draw", {
-      roomId: roomId,
+    drawStrokeEvent(roomId, {
       x0: lastPos.x,
       y0: lastPos.y,
       x1: x,
@@ -248,7 +253,7 @@ export default function Canvas({isDrawer,roomId}) {
   const clear = () => {
     if (!isDrawer) return;
     clearLocal();
-    socket.emit("clearCanvas", { roomId: roomId });
+    clearCanvasEvent(roomId);
   };
 
   const download = () => {
@@ -283,16 +288,28 @@ export default function Canvas({isDrawer,roomId}) {
       floodFillLocal(x, y, color, tolerance);
     };
 
-    socket.on("draw", onDraw);
-    socket.on("clearCanvas", onClear);
-    socket.on("fillBucket", onFill);
+    const onCanvasSync = ({ image }) => {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+      };
+      img.src = image;
+    };
+
+
+    socket.on("DRAW", (payload) => {console.log("event recieved at on Draw", payload); onDraw(payload)});
+    socket.on("CLEAR_CANVAS", () => onClear());
+    socket.on("ON_FILL", (fillData) => {console.log("event recieved at on Fill", fillData); onFill(fillData)});
+    socket.on("CANVAS_SYNC", (syncData) => {console.log("event recieved at on Canvas Sync", syncData); onCanvasSync(syncData)});
 
     return () => {
-      socket.off("draw", onDraw);
-      socket.off("clearCanvas", onClear);
-      socket.off("fillBucket", onFill);
+      socket.off("DRAW", onDraw);
+      socket.off("CLEAR_CANVAS", onClear);
+      socket.off("ON_FILL", onFill);
+      socket.off("CANVAS_SYNC", onCanvasSync);
     };
-  }, [socket, ctx, floodFillLocal]);
+  }, [socket, ctx]);
 
   return (
     <div className="canvas-wrapper">

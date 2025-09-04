@@ -51,15 +51,11 @@ export function GameProvider({ children }) {
       players: [],
       messages: [],
       drawerId: null,
-      currentWord: null,
+      word: null,
       round: 1,
       totalRounds: 3,
-      timer: 60,
-      scores: {},
-      started: false,
+      timeLeft: 60,
       wordChoices: [],
-      hints: [],
-      drawings: [],
     });
   };
 
@@ -109,15 +105,11 @@ export function GameProvider({ children }) {
   const getPlayers = () => gameState.players;
   const getMessages = () => gameState.messages;
   const getDrawerId = () => gameState.drawerId;
-  const getCurrentWord = () => gameState.currentWord;
+  const getWord = () => gameState.word;
   const getRound = () => gameState.round;
   const getTotalRounds = () => gameState.totalRounds;
-  const getTimer = () => gameState.timer;
-  const getScores = () => gameState.scores;
+  const getTimeLeft = () => gameState.timeLeft;
   const getWordChoices = () => gameState.wordChoices;
-  const getHints = () => gameState.hints;
-  const getDrawings = () => gameState.drawings;
-  const isStarted = () => gameState.started;
 
   return (
     <GameContext.Provider
@@ -133,15 +125,11 @@ export function GameProvider({ children }) {
         getPlayers,
         getMessages,
         getDrawerId,
-        getCurrentWord,
+        getWord,
         getRound,
         getTotalRounds,
-        getTimer,
-        getScores,
-        getWordChoices,
-        getHints,
-        getDrawings,
-        isStarted
+        getTimeLeft,
+        getWordChoices
       }}
     >
       {children}

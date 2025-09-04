@@ -44,19 +44,14 @@ export default function Game() {
   return (
     <div className="Game">
       <div className="Topbar-container">
-        <Topbar
-          round={getRound()}
-          totalRounds={getTotalRounds()}
-          word={getCurrentWord()}
-          timeLeft={getTimer()}
-        />
+        <Topbar />
       </div>
       <div className="Canvas-container">
         {/* {getWordChoices()?.length > 0 ? (
           <WordChoice choices={getWordChoices()} />
         ) : (
         )} */}
-          <Canvas roomId={roomId} isDrawer={isDrawer} />
+          <Canvas roomId={getRoomId()} isDrawer={isDrawer} />
       </div>
       <div className="player-chat-container">
         <PlayerList players={getPlayers()} />
