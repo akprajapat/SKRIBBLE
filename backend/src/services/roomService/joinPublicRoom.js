@@ -19,10 +19,4 @@ export default class JoinPublicRoom extends RoomJoinTemplate {
     if (!room) return "No available public room";
     return null;
   }
-
-  afterJoin(room) {
-    if (room.canStartGame()) {
-      room.startGame();
-    }
-  }
 }

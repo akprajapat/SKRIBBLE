@@ -9,11 +9,8 @@ class Player {
     this.score = score;
     this.rank = rank;
   }
-
-  sendEvent({ event, data }) {
-    if (this.socket) {
-      eventBus.emit(event, { socketId: this.socket.id, ...data });
-    }
+  sendEvent(event, data) {
+    eventBus.emit(event, this.socket, data);
   }
 
   updateScore(newScore) {

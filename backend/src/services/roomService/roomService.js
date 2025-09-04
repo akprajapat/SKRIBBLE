@@ -38,4 +38,23 @@ export function leaveRoom(socketId) {
   return { success: true };
 }
 
-export default rooms;
+export function getRoom(roomId) {
+  return rooms.get(roomId);
+}
+
+export function hasRoom(roomId) {
+  return rooms.has(roomId);
+}
+
+export function startGameByHost(roomId, socketId) {
+  const room = rooms.get(roomId);
+  if (!room) return { error: "Room not found" };
+
+  if (room.hostId !== socketId) {
+    return { error: "Only host can start the game" };
+  }
+  room.startGame();
+  return { success: true };
+}
+
+export default getRoom;

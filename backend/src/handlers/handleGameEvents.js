@@ -1,61 +1,58 @@
 import {
-  startGame,
-  selectWord,
+  selectedWord,
   guessWord,
   drawStroke,
   clearCanvas,
-  endTurn,
-  showScoreboard,
-  handlePlayerLeave
+  onFill,
+  endTurn
 } from "../services/gameService.js";
-import rooms from "../services/roomService/roomJoinTemplate.js";
+import getRoom, { startGameByHost } from "../services/roomService/roomService.js";
 
 export default function handleGameEvents(socket) {
-  socket.on("startGame", async ({ roomId, playerId }, cb) => {
-    console.log(`startGame event received { roomId: ${roomId}, playerId: ${playerId} }`);
-    const result = await startGame(roomId, playerId);
+  socket.on("START_GAME", async ({ roomId }, cb) => {
+    console.log(`START_GAME event received { roomId: ${roomId}, playerId: ${socket.id} }`);
+    const result = startGameByHost(roomId, socket.id);
     cb?.(result);
   });
 
-  socket.on("selectWord", ({ roomId, playerId, word }, cb) => {
-    console.log(`selectWord event received { roomId: ${roomId}, playerId: ${playerId}, word: ${word} }`);
-    const result = selectWord(roomId, playerId, word);
+  socket.on("SELECTED_WORD", ({ roomId, word }, cb) => {
+    console.log(`SELECTED_WORD event received { roomId: ${roomId}, word: ${word} }`);
+    const result = selectedWord(roomId, socket.id, word);
     cb?.(result);
   });
 
-  socket.on("guessWord", ({ roomId, playerId, guess }) => {
-    console.log(`guessWord event received { roomId: ${roomId}, playerId: ${playerId}, guess: ${guess} }`);
-    guessWord(roomId, playerId, guess);
+  socket.on("GUESS_WORD", ({ roomId, guess }) => {
+    console.log(`GUESS_WORD event received { roomId: ${roomId}, guess: ${guess} }`);
+    guessWord(roomId, socket.id, guess);
   });
 
-  socket.on("draw", ({ roomId, strokeData }) => {
-    console.log(`draw event received { roomId: ${roomId}, strokeData length: ${strokeData?.length} }`);
+  socket.on("DRAW", ({ roomId, strokeData }) => {
+    console.log(`DRAW event received { roomId: ${roomId}, strokeData: ${JSON.stringify(strokeData)}, socketId: ${socket.id} }`);
     drawStroke(roomId, socket.id, strokeData);
   });
 
-  socket.on("clearCanvas", ({ roomId }) => {
-    console.log(`clearCanvas event received { roomId: ${roomId} }`);
-    clearCanvas(roomId);
+  socket.on("CLEAR_CANVAS", ({ roomId }) => {
+    console.log(`CLEAR_CANVAS event received { roomId: ${roomId} }`);
+    clearCanvas(roomId, socket.id);
   });
 
-  socket.on("endTurn", ({ roomId }) => {
-    console.log(`endTurn event received { roomId: ${roomId} }`);
-    endTurn(roomId);
+  socket.on("ON_FILL", ({ roomId, fillData }) => {
+    console.log(`ON_FILL event received { roomId: ${roomId}, fillData: ${fillData} }`);
+    onFill(roomId, socket.id, fillData);
   });
 
-  socket.on("showScoreboard", ({ roomId }) => {
-    console.log(`showScoreboard event received { roomId: ${roomId} }`);
-    showScoreboard(roomId);
+  socket.on("END_TURN", ({ roomId }) => {
+    console.log(`END_TURN event received { roomId: ${roomId} }`);
+    endTurn(roomId, socket.id);
   });
 
-  socket.on("getGameState", ({ roomId }) => {
-    console.log(`getGameState event received { roomId: ${roomId} }`);
+  socket.on("GET_GAME_STATE", ({ roomId }) => {
+    console.log(`GET_GAME_STATE event received { roomId: ${roomId} }`);
     const gameState = getGameState(roomId);
-    socket.emit("gameState", gameState);
+    socket.emit("GET_GAME_STATE", gameState);
   });
 
-  socket.on("TIMER_END", ({ roomId }) => {
-    console.log(`TIMER_END event received { roomId: ${roomId} }`);
-    endTurn(roomId);
+  socket.on("CANVAS_SYNC", ({ roomId, image }) => {
+    socket.to(roomId).emit("CANVAS_SYNC", { image });
   });
 }

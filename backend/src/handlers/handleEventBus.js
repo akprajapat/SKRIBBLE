@@ -8,6 +8,8 @@ export default function handleEventBus(io) {
     "TIMER_TICK",
     "TIMER_END",
     "DRAW",
+    "ON_FILL",
+    "CANVAS_SYNC",
     "CLEAR_CANVAS",
     "CHAT",
     "SCOREBOARD",
@@ -19,24 +21,21 @@ export default function handleEventBus(io) {
   const playerEvents = [
     "WORD_CHOICES",
     "CORRECT_GUESS",
+    "GAME_STATE"
 
   ];
 
   roomEvents.forEach(event => {
-    eventBus.on(event, (payload) => {
-      if (payload?.roomId) {
-        console.log(`Emitting event ${event} to room ${payload.roomId} with data:`, payload);
-        io.to(payload.roomId).emit(event, payload);
-      }
+    eventBus.on(event, (roomId, payload) => {
+      console.log(`Emitting event ${event} to room ${roomId} with data:`, payload);
+      io.to(roomId).emit(event, payload);
     });
   });
 
   playerEvents.forEach(event => {
-    eventBus.on(event, (payload) => {
-      if (payload?.socketId) {
-        console.log(`Emitting event ${event} to player ${payload.socketId} with data:`, payload);
-        io.to(payload.socketId).emit(event, payload);
-      }
+    eventBus.on(event, (socketId, payload) => {
+      console.log(`Emitting event ${event} to player ${socketId} with data:`, payload);
+      io.to(socketId).emit(event, payload);
     });
   });
 }

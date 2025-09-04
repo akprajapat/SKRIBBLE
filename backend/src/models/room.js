@@ -24,19 +24,31 @@ export default class Room {
 
   isFull() { return this.players.length >= this.maxPlayers; }
 
+  isGameStarted() { return this.gameStarted; }
+
   addPlayer({name, socket}) {
     if (this.isFull()) return {error: "Room is Full"};
     const player = new Player({ id: this._nextPlayerId++, name, socket });
     this.players.push(player);
-    if (this.players.length === 1) this.hostId = player.id;
+    if (this.players.length === 1) this.hostId = player.socket;
     return player;
   }
 
-  removeBySocket(socketId) {
-    const idx = this.players.findIndex(p => p.socketId === socketId);
+  removePlayerBySocket(socketId) {
+    const idx = this.players.findIndex(p => p.socket === socketId);
     if (idx === -1) return null;
+    this.game.handlePlayerLeave(socketId);
     const [p] = this.players.splice(idx, 1);
+    this._updateHost();
     return p;
+  }
+
+  _updateHost(){
+    if (this.players.length === 0) {
+      this.hostId = null;
+    } else {
+      this.hostId = this.players[0].socket;
+    }
   }
 
   getPlayerBySocket(socketId) {
@@ -47,7 +59,7 @@ export default class Room {
     return this.players.find(p => p.id === id);
   }
 
-  canStartGame(requesterId=null) {
+  _canStartGame(requesterId=null) {
     if (this.gameStarted) return false;
     if (this.players.length < 2) return false;
     if (this.type === RoomType.PRIVATE) return requesterId === this.hostId;
@@ -55,10 +67,13 @@ export default class Room {
   }
 
   startGame(playerId=null) {
-    if(this.canStartGame(playerId)){
+    if(this._canStartGame(playerId)){
       this.gameStarted = true;
       this.game.start(this.players);
-
     } 
+  }
+
+  sendGameState(socketId) {
+    this.game.sendGameState(socketId);
   }
 }

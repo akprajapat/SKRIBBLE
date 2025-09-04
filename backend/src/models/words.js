@@ -19,6 +19,10 @@ class Words {
     return this.choosedWord;
   }
 
+  getMaskedWord() {
+    return this.maskedWord;
+  }
+
   setChoosedWord(word) {
     if (!this.wordChoices?.includes(word)) return null;
     this.choosedWord = word;
@@ -38,7 +42,7 @@ class Words {
     }
     this.maskedWord = this.maskedWord.substring(0, randomIndex) + this.choosedWord[randomIndex] + this.maskedWord.substring(randomIndex + 1);
 
-    eventBus.emit("HINT_GENERATED", { roomId: this.roomId, hint: this.maskedWord });
+    eventBus.emit("HINT_GENERATED", this.roomId, { hint: this.maskedWord });
     return this.maskedWord;
   }
 

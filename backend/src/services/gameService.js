@@ -1,111 +1,80 @@
-import rooms from "./roomService/roomJoinTemplate.js";
+import getRoom from "./roomService/roomService.js";
 
 /**
- * Start the game for a given room
+ * Get game instance with proper validation
  */
-export async function startGame(roomId, playerId) {
-  const room = rooms.get(roomId);
-  if (!room) return { error: "Room not found" };
+function getGame(roomId) {
+  const room = getRoom(roomId);
+  if (!room) return { game: null, error: "Room not found" };
 
-  if (!room.canStart(playerId)) {
-    return { error: "Only host can start game or conditions not met" };
-  }
+  const game = room.game;
+  if (!game || !game.started) return { game: null, error: "Game not started" };
 
-  await room.startGame(io);
-  return { success: true };
+  return { game, error: null };
 }
 
 /**
  * Player selects a word (only current drawer can select)
  */
-export function selectWord(roomId, playerId, word) {
-  const room = rooms.get(roomId);
-  if (!room) return { error: "Room not found" };
-
-  return room.game.selectWord(playerId, word);
+export function selectedWord(roomId, socketId, word) {
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  if (!game.isDrawer(socketId)) return { error: "Not your turn" };
+  return game.selectedWord(word);
 }
 
 /**
  * Handle guess from player
  */
 export function guessWord(roomId, playerId, guess) {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const game = room.game;
-  if (!game || !game.started) return;
-
-  game.handleGuess(io, playerId, guess);
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  
+  return game.handleGuess(playerId, guess);
 }
 
 /**
  * Broadcast draw strokes from current drawer
  */
 export function drawStroke(roomId, socketId, strokeData) {
-  const room = rooms.get(roomId);
-  if (!room || !room.game) return;
-
-  const drawer = room.getCurrentDrawer();
-  if (drawer.socket !== socketId) return; // only drawer can draw
-
-  io.to(roomId).emit("draw", strokeData);
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  if (!game.isDrawer(socketId)) return { error: "Not your turn" };
+  return game.drawStroke(strokeData);
 }
 
 /**
  * Clear the canvas for everyone (only drawer can clear)
  */
-export function clearCanvas(roomId) {
-  const room = rooms.get(roomId);
-  if (!room || !room.game) return;
+export function clearCanvas(roomId, socketId) {
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  if (!game.isDrawer(socketId)) return { error: "Not your turn" };
+  return game.clearCanvas();
+}
 
-  io.to(roomId).emit("clearCanvas");
+export function onFill(roomId, socketId, fillData) {
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  if (!game.isDrawer(socketId)) return { error: "Not your turn" };
+  console.log("event received at on Fill in gameService", fillData);
+  return game.onFill(fillData);
 }
 
 /**
  * End current turn manually (only drawer or host can do this)
  */
 export function endTurn(roomId) {
-  const room = rooms.get(roomId);
-  if (!room || !room.game) return;
-
-  room.game.endTurn(io);
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  return game.endTurn();
 }
 
 /**
  * Show scoreboard between rounds
  */
 export function showScoreboard(roomId) {
-  const room = rooms.get(roomId);
-  if (!room || !room.game) return;
-
-  const scores = room.game.getScoreboard();
-  io.to(roomId).emit("scoreboard", scores);
-}
-
-/**
- * Get current game state (for resync or reconnect)
- */
-export function getGameState(roomId) {
-  const room = rooms.get(roomId);
-  if (!room || !room.game) return null;
-
-  return room.game.getSyncState();
-}
-
-/**
- * Handle player leaving during game
- */
-export function handlePlayerLeave(roomId, playerId) {
-  const room = rooms.get(roomId);
-  if (!room) return;
-  room.removePlayer(playerId);
-
-  if (room.players.length === 0) {
-    rooms.delete(roomId);
-    return;
-  }
-
-  // if (room.game.started) {
-  //   room.game.handleDrawerLeft();
-  // }
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  return game.getScoreboard();
 }

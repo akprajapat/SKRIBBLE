@@ -14,7 +14,7 @@ export default class Timer {
     this.duration = duration;
     this.timeLeft = duration;
 
-    eventBus.emit("TIMER_TICK", { roomId: this.roomId, timeLeft: this.timeLeft });
+    eventBus.emit("TIMER_TICK", this.roomId, { timeLeft: this.timeLeft });
 
     this._interval = setInterval(() => {
       this.timeLeft -= 1;
@@ -22,12 +22,12 @@ export default class Timer {
       // Trigger checkpoint callbacks if matched
       if (this.checkpoints.has(this.timeLeft)) {
         console.log(`Triggering ${this.checkpoints.get(this.timeLeft).length} checkpoint(s) at ${this.timeLeft}s for room ${this.roomId}`);
-        eventBus.emit("TIMER_CHECKPOINT", { roomId: this.roomId, checkpoint: this.timeLeft });
+        eventBus.emit("TIMER_CHECKPOINT", this.roomId, { checkpoint: this.timeLeft });
         this.checkpoints.get(this.timeLeft).forEach((cb) => cb());
       }
 
       if (this.timeLeft > 0) {
-        eventBus.emit("TIMER_TICK", { roomId: this.roomId, timeLeft: this.timeLeft });
+        eventBus.emit("TIMER_TICK", this.roomId, { timeLeft: this.timeLeft });
       } else {
         this.stop(true); // will now emit TIMER_END
       }
@@ -40,7 +40,7 @@ export default class Timer {
       this._interval = null;
     }
     if (emitEnd) {
-      eventBus.emit("TIMER_END", { roomId: this.roomId });
+      eventBus.emit("TIMER_END", this.roomId);
     }
   }
 
