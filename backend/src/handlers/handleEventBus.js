@@ -22,7 +22,6 @@ export default function handleEventBus(io) {
     "WORD_CHOICES",
     "CORRECT_GUESS",
     "GAME_STATE"
-
   ];
 
   roomEvents.forEach(event => {

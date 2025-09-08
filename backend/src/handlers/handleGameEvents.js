@@ -1,7 +1,7 @@
 import {
   selectedWord,
   guessWord,
-  drawStroke,
+  onDraw,
   clearCanvas,
   onFill,
   endTurn
@@ -28,7 +28,7 @@ export default function handleGameEvents(socket) {
 
   socket.on("DRAW", ({ roomId, strokeData }) => {
     console.log(`DRAW event received { roomId: ${roomId}, strokeData: ${JSON.stringify(strokeData)}, socketId: ${socket.id} }`);
-    drawStroke(roomId, socket.id, strokeData);
+    onDraw(roomId, socket.id, strokeData);
   });
 
   socket.on("CLEAR_CANVAS", ({ roomId }) => {

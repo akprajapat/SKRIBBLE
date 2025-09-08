@@ -1,8 +1,22 @@
-import eventBus from "../events/eventBus.js";
-import sendChat from "../utils/sendChat.js";
+import { 
+  emitGameStartedEvent, 
+  emitRoundStartedEvent,
+  emitWordSetEvent,
+  emitWordChoicesEvent,
+  sendChatEvent,
+  emitCorrectGuessEvent,
+  emitScoreboardEvent,
+  emitGameEndedEvent,
+  emitDrawEvent,
+  emitClearCanvasEvent,
+  emitOnFillEvent,
+  emitGameStateEvent
+} from "../events/emitEvents.js";
+
 import Timer from "./timer.js";
 import Words from "./words.js";
 import Difficulty from "../constants/difficulty.js";
+import timerType from "../constants/timerType.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
 import wordList from "../constants/wordList.js";
 
@@ -20,7 +34,7 @@ import wordList from "../constants/wordList.js";
  * - CORRECT_GUESS       { roomId, playerId, points }
  * - SCOREBOARD          { roomId, round, scores:[{id,name,score}], nextDrawerPlayerId? }
  * - GAME_ENDED          { roomId, scores:[...] }
- * - GAME_STATE          { roomId, round,timeleft,word,drawerId,currentCanvas, players }
+ * - GAME_STATE          { roomId, round,timeleft,word,drawerId, players }
  */
 
 
@@ -35,8 +49,10 @@ export default class Game {
     this.players = [];
     this.drawerIndex = 0;
     this.round = 1;
+    this.started = false;
 
     this.words = null;
+    this.wordChoices = [];
     this.scores = new Map();
     this.guessedIds = new Set();
     this.timer = new Timer({ roomId, durationSec: turnSeconds });
@@ -50,7 +66,6 @@ export default class Game {
       timeLeft: this.timer.timeLeft,
       word: this.words.getMaskedWord(),
       drawerId: this.players[this.drawerIndex].id,
-      currentCanvas: this.canvas,
       players: this.players.map(player => ({
         id: player.id,
         name: player.name,
@@ -59,9 +74,12 @@ export default class Game {
     };
   }
 
-  _nextDrawerIndex() {
-    if (this.players.length === 0) return 0;
-    return (this.drawerIndex + 1) % this.players.length;
+  _updateDrawerIndex() {
+    this.drawerIndex--;
+    if (this.drawerIndex < 0) {
+      this.round++;
+      this.drawerIndex = this.players.length - 1;
+    }
   }
 
   _calculateScore(){
@@ -70,14 +88,21 @@ export default class Game {
     return Math.min(450, base + timeFactor * 10);
   }
 
+  _calculateScoreForDrawer(){
+    const base = 50;
+    const correctGuessers = this.guessedIds.size;
+    const bonusPerGuesser = 50;
+    return base + (correctGuessers * bonusPerGuesser);
+  }
+
   _getPlayerById(id) {
     return this.players.find(player => player.id === id);
   }
 
-  _updateScoresAndRanks() {
+  async _updateScoresAndRanks() {
     const newScores = [];
     this.players.forEach(p => {
-      const updatedScore = p.updateScore(this.scores[p.id]);
+      const updatedScore = p.updateScore(this.scores[p.name]);
       newScores.push({ id: p.id, score: updatedScore });
     });
 
@@ -94,33 +119,76 @@ export default class Game {
     });
   }
 
-  _createTimerForTurn(){
-    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds });
+  async _createTimerForTurn(){
+    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds, type: timerType.TURN });
     this.timer.start(this.turnSeconds);
     this.words.registerHintCheckpoints(this.timer);
     this.timer.addCheckpoint(0,() => this._endTurn() );
   }
 
-  async _startTurn() {
+  async _createTimerForWordSelection(){
+    this.timer = new Timer({ roomId: this.roomId, durationSec: 20, type: timerType.WORD_SELECTION });
+    this.timer.start(20);
+    this.timer.addCheckpoint(0,() => {
+      this.selectedWord(this.wordChoices[0]);
+    });
+  }
+
+  async _createTimerForShowScoreboard(){
+    this.timer = new Timer({ roomId: this.roomId, durationSec: 10, type: timerType.SHOW_SCOREBOARD });
+    this.timer.start(10);
+    this.timer.addCheckpoint(0,() => {
+      this._startWordSelection();
+    });
+  }
+
+  async _sendWordChoices() {
+    const drawer = this.players[this.drawerIndex];
+    this.wordChoices = this.words.getWordChoices();
+    emitWordChoicesEvent(drawer.socket, { 
+      phase: "WORD_SELECTION",
+      drawerId: drawer.id,
+      wordChoices: this.wordChoices
+    });
+  }
+
+  selectedWord(word) {
+    this.timer.stop();
+    this.words.setChoosedWord(word);
+    this._startTurn();
+  }
+
+  async _startWordSelection() {
     if (this.players.length < 2) {
       return this._endGame();
     }
-    this.drawerIndex = this._nextDrawerIndex();
-
+    this._sendWordChoices();
+    this._createTimerForWordSelection();
     this.guessedIds.clear();
     this.scores.clear();
+  }
 
+  async _startTurn() {
     const drawer = this.players[this.drawerIndex];
-    const wordChoices = this.words.getWordChoices();
-    drawer.sendEvent("WORD_CHOICES", { drawerId: drawer.id, choices: wordChoices });
-    this.setChoosedWord(drawer.id, wordChoices[0]);
-
-    eventBus.emit("ROUND_STARTED", this.roomId, {
+    console.log("Starting turn with word:", this.words.getCurrentWord());
+    emitRoundStartedEvent(this.roomId, {
+      phase: "TURN",
       round: this.round,
       drawerId: drawer.id,
+      players: this.players,
     });
-
     this._createTimerForTurn();
+  }
+
+  async _showScoreboard() {
+    this._createTimerForShowScoreboard();
+    emitScoreboardEvent(this.roomId, { 
+      scores: this.scores,
+      word: this.words.getCurrentWord(),
+      round: this.round,
+      phase: "SCOREBOARD"
+    });
+    this._updateScoresAndRanks();
   }
 
   isDrawer(socketId) {
@@ -128,44 +196,43 @@ export default class Game {
     return drawer && drawer.socket === socketId;
   }
 
-  setChoosedWord(playerId, word) {
-    const drawer = this.players[this.drawerIndex];
-    if (!drawer || drawer.id !== playerId) return;
-    this.currentWord = this.words.setChoosedWord(word);
-    eventBus.emit("WORD_SET", this.roomId, { word: this.currentWord });
-  }
-
   async start(players) {
-    this.started = true;
     this.players = players;
-    this.drawerIndex = 0;
-    this.round = 1;
-    // const words = await generateWordList(this.totalRounds, this.maxPlayers, this.difficulty);
-    const words = wordList;
-
-    eventBus.emit("GAME_STARTED", this.roomId, { players: this.players });
-    
-    players.forEach(player => {
-      sendChat({ userId: player.id, system: true, message: `Player ${player.name} joined the room.` });
+    this.drawerIndex = players.length - 1;
+    this.started = true;
+    this.words = new Words(this.roomId, wordList);
+    emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
+    players.forEach(p => {
+      sendChatEvent({ 
+        roomId: this.roomId, 
+        system: true, 
+        message: `Player ${p.name} joined the room` 
+      });
     });
-
-    this.words = new Words(this.roomId, words);
-    await this._startTurn();
-    console.log(this.wordChoices);
+    await this._startWordSelection();
   }
 
-  handleGuess(playerId, guess) {
-    if (this.guessedIds.has(playerId)) return;
+  chooseWord(playerId, word) {
+    this.words.setChoosedWord(word);
+    emitWordSetEvent(this.roomId, { word: "_".repeat(this.currentWord.length) });
+  }
 
+  handleGuess(socketId, guessRaw) {
+    const p = this.players.find(pl => pl.socket === socketId);
+    if (this.guessedIds.has(socketId)) return;
+    const guess = guessRaw.trim().toLowerCase();
+    
     if (this.words.isCorrectGuess(guess)) {
-      const p = this.players.find(pl => pl.id === playerId);
+      const points = this._calculateScore();
       if (p) {
-        this.guessedIds.add(playerId);
-        this.scores[p.id] = this._calculateScore();
-
-        eventBus.emit("CORRECT_GUESS", p.socket, { word: this.words.getCurrentWord() });
-
-        this.sendChat({ system: true, message: `Player ${p.name} guessed the word!` });
+        p.updateScore(points);
+        this.guessedIds.add(p.id);
+        this.scores[p.name] = points;
+        sendChatEvent({ 
+          roomId: this.roomId, 
+          system: true, 
+          message: ` ${p.name} guessed the word!` 
+        });
 
         const aliveGuessers = this.players.filter(pl => pl.connected && pl.id !== this.players[this.drawerIndex].id);
         const allGuessed = aliveGuessers.every(pl => this.guessedIds.has(pl.id));
@@ -174,59 +241,62 @@ export default class Game {
           this._endTurn();
         }
       }
+    } else {
+      sendChatEvent({roomId: this.roomId, system:false, username: p.name, message: guess  });
     }
   }
 
   _endTurn() {
-    eventBus.emit("SCOREBOARD", this.roomId, {
-      round: this.round,
-      word: this.words.getCurrentWord(),
-      scores: this.scores,
-    });
-
-    this._updateScoresAndRanks();
-
+    this.scores[this.players[this.drawerIndex].name] = this._calculateScoreForDrawer();
+    this._showScoreboard();
+    this._updateDrawerIndex();
     if (this.round > this.totalRounds) {
       this._endGame();
     } else {
       this.guessedIds.clear();
-      this._startTurn();
     }
   }
 
   _endGame() {
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
-    eventBus.emit("GAME_ENDED", this.roomId, { scores });
+    emitGameEndedEvent(this.roomId, { scores });
   }
 
-  drawStroke(strokeData) {
-    eventBus.emit("DRAW", this.roomId,  strokeData );
+  onDraw(strokeData) {
+    emitDrawEvent(this.roomId,  strokeData );
   }
 
   onFill(fillData) {
-    eventBus.emit("ON_FILL", this.roomId, fillData );
+    emitOnFillEvent(this.roomId, fillData);
+  }
+
+  onClear() {
+    emitClearCanvasEvent(this.roomId);
   }
 
   clearCanvas() {
-    eventBus.emit("CLEAR_CANVAS", this.roomId, {});
-    console.log("Canvas cleared");
+    emitClearCanvasEvent(this.roomId);
   }
 
   sendGameState(socketId) {
-    eventBus.emit("GAME_STATE", socketId, this._getGameState());
+    emitGameStateEvent(socketId, this._getGameState());
   }
 
   handlePlayerLeave(leftPlayerSocketId) {
     const idx = this.players.findIndex(p => p.socket === leftPlayerSocketId);
     if (idx === -1) return;
     this.players.splice(idx, 1);
-
-    // If drawer left: move to next drawer and end current turn immediately
+    if (this.players.length < 2) {
+      this._endGame();
+      return;
+    }    // If drawer left: move to next drawer and end current turn immediately
     const drawer = this.players[this.drawerIndex];
     if (drawer && drawer.id === leftPlayerId) {
       this.timer.stop();
       this._endTurn();
     }
+    if (idx <= this.drawerIndex) {
+      this.drawerIndex--;
+    }
   }
-
 }

@@ -1,12 +1,12 @@
-import eventBus from "../events/eventBus.js";
+import { emitHintGeneratedEvent, emitWordSetEvent } from "../events/emitEvents.js";
 
 class Words {
   constructor(roomId, words) {
     this.roomId = roomId;
     this.preGenWords = words;
     this.currentIndex = 0;
-    this.choosedWord = null;
-    this.maskedWord = null;
+    this.choosedWord = "";
+    this.maskedWord = "";
   }
 
   getWordChoices() {
@@ -27,6 +27,7 @@ class Words {
     if (!this.wordChoices?.includes(word)) return null;
     this.choosedWord = word;
     this.maskedWord = word.split("").map(() => "_").join("");
+    emitWordSetEvent(this.roomId, { word: this.maskedWord });
     return this.maskedWord;
   }
 
@@ -41,14 +42,12 @@ class Words {
       randomIndex = (randomIndex + 1) % this.choosedWord.length;
     }
     this.maskedWord = this.maskedWord.substring(0, randomIndex) + this.choosedWord[randomIndex] + this.maskedWord.substring(randomIndex + 1);
-
-    eventBus.emit("HINT_GENERATED", this.roomId, { hint: this.maskedWord });
+    emitHintGeneratedEvent(this.roomId, { hint: this.maskedWord });
     return this.maskedWord;
   }
 
   registerHintCheckpoints(timer) {
     if (!timer) return;
-
     console.log(this.choosedWord,"registering hint checkpoints");
     const length = this.choosedWord.length + 2;
     const hintsCount = Math.floor(length / 3);

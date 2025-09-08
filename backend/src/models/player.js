@@ -9,12 +9,13 @@ class Player {
     this.score = score;
     this.rank = rank;
   }
+  
   sendEvent(event, data) {
     eventBus.emit(event, this.socket, data);
   }
 
-  updateScore(newScore) {
-    this.score += newScore;
+  updateScore(score) {
+    this.score += score;
     console.log(`Updated player ${this.name} score to ${this.score}`);
     return this.score;
   }

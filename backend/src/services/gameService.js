@@ -26,21 +26,22 @@ export function selectedWord(roomId, socketId, word) {
 /**
  * Handle guess from player
  */
-export function guessWord(roomId, playerId, guess) {
+export function guessWord(roomId, socketId, guess) {
   const { game, error } = getGame(roomId);
   if (error) return { error };
-  
-  return game.handleGuess(playerId, guess);
+  if (game.isDrawer(socketId)) return { error: "You Can't Guess Your Own Word" };
+  return game.handleGuess(socketId, guess);
 }
 
 /**
  * Broadcast draw strokes from current drawer
  */
-export function drawStroke(roomId, socketId, strokeData) {
+export function onDraw(roomId, socketId, strokeData) {
   const { game, error } = getGame(roomId);
+  console.log("onDraw called with:", { roomId, socketId, strokeData, game, error });
   if (error) return { error };
   if (!game.isDrawer(socketId)) return { error: "Not your turn" };
-  return game.drawStroke(strokeData);
+  return game.onDraw(strokeData);
 }
 
 /**

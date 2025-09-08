@@ -3,6 +3,10 @@ import DEFAULTS from "../constants/publicRoom.js";
 import Player from "./player.js";
 import generateRoomId from "../utils/idGenerator.js";
 import Game from "./game.js";
+import { 
+  sendChatEvent,
+  emitGameStateEvent 
+} from "../events/emitEvents.js";
 
 export default class Room {
   constructor(DEFAULTS = {}) {
@@ -31,6 +35,11 @@ export default class Room {
     const player = new Player({ id: this._nextPlayerId++, name, socket });
     this.players.push(player);
     if (this.players.length === 1) this.hostId = player.socket;
+    sendChatEvent({
+      roomId: this.id,
+      system: true,
+      message: `${player.name} joined the room`
+    });
     return player;
   }
 
@@ -40,6 +49,11 @@ export default class Room {
     this.game.handlePlayerLeave(socketId);
     const [p] = this.players.splice(idx, 1);
     this._updateHost();
+    sendChatEvent({
+      roomId: this.id,
+      system: true,
+      message: `${p.name} left the room`
+    });
     return p;
   }
 
@@ -75,5 +89,12 @@ export default class Room {
 
   sendGameState(socketId) {
     this.game.sendGameState(socketId);
+  }
+
+  syncGameState(playerId) {
+    emitGameStateEvent(playerId, { 
+      roomId: this.id,
+      gameData: this.game 
+    });
   }
 }
