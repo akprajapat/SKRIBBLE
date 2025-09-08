@@ -1,59 +1,68 @@
+/* Container */
 .Chat {
-  border: 1px solid black;
-  background: #fff;
+  border: 1px solid blue; /* Lighter border for a softer look */
+  background: #ffffff; /* White background like Skribbl.io */
   display: flex;
   flex-direction: column;
-  bottom: 0;
+  height: 40vh; 
+  width: 60vw;
+  min-width: 250px;
+  max-width: 630px; 
+  font-family: 'Permanent Marker', 'Comic Sans MS', 'Roboto', sans-serif; /* Playful Skribbl.io font */
+  position: relative; /* Relative positioning for child elements */
+  box-sizing: border-box;
 }
 
+/* Message list */
 .Chat__list {
-  flex: 1;
-  padding: 8px 12px;
-  overflow-y: auto;
+  flex: 1; /* Take available space */
+  padding: 10px 12px; /* Comfortable padding */
+  overflow-y: auto; /* Scrollable message list */
+  background: #fafafa; /* Light grey for message area */
 }
 
+/* Message item */
 .Chat__item {
-  margin: 4px 0;
-  font-size: 14px;
-}
-
-.Chat__user {
-  font-weight: 600;
-  margin-right: 6px;
-}
-
-.Chat__text {
-  color: #333;
-}
-
-.Chat__form {
+  margin: 6px 0; /* Spacing between messages */
+  font-size: 13px; /* Compact font size like Skribbl.io */
   display: flex;
-  gap: 8px;
-  padding: 8px;
-  border-top: 1px solid #eee;
+  align-items: flex-start; /* Align messages at the top */
+  line-height: 1.4; /* Improve readability */
 }
 
-.Chat__input {
-  flex: 1;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
+/* Username */
+.Chat__user {
+  font-weight: 700; /* Bolder usernames */
+  margin-right: 8px; /* Space after username */
+  color: #222; /* Dark color for contrast */
+  white-space: nowrap; /* Prevent wrapping */
+  max-width: 120px; /* Limit username width */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Truncate long usernames */
 }
 
-.Chat__input:focus {
-  border-color: #999;
+/* Message text */
+.Chat__text {
+  color: #333; /* Dark text for messages */
+  word-break: break-word; /* Break long messages */
+  flex: 1; /* Allow text to take remaining space */
 }
 
-.Chat__send {
-  padding: 8px 14px;
-  border: 1px solid #111;
-  background: #111;
-  color: #fff;
-  border-radius: 8px;
-  cursor: pointer;
+/* Message type styles */
+.Chat__item--system {
+  color: #888; /* Grey for system messages */
+  font-style: italic; /* Italic for system messages */
+  font-size: 12px; /* Slightly smaller for system messages */
 }
 
-.Chat__send:hover {
-  opacity: 0.9;
+.Chat__item--guess {
+  color: #28a745; /* Green for correct guesses */
+  font-weight: 600; /* Emphasize correct guesses */
 }
+
+.Chat__item--drawer {
+  color: #ff9900; /* Bright orange for drawer’s messages, matching Skribbl.io */
+  font-weight: 600; /* Emphasize drawer messages */
+}
+
+/*

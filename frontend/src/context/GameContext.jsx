@@ -17,15 +17,14 @@ export function GameProvider({ children }) {
     players: [],
     messages: [],
     drawerId: null,
-    currentWord: null,
+    currentWord: "",
     round: 1,
     totalRounds: 3,
     timer: 60,
     scores: {},
     started: false,
     wordChoices: [],
-    hints: [],
-    drawings: [],
+    phase: null,
   });
 
   // ---------------- SETTERS ----------------
@@ -51,11 +50,12 @@ export function GameProvider({ children }) {
       players: [],
       messages: [],
       drawerId: null,
-      word: null,
+      currentWord: "",
       round: 1,
       totalRounds: 3,
       timeLeft: 60,
       wordChoices: [],
+      phase: null,
     });
   };
 
@@ -105,11 +105,13 @@ export function GameProvider({ children }) {
   const getPlayers = () => gameState.players;
   const getMessages = () => gameState.messages;
   const getDrawerId = () => gameState.drawerId;
-  const getWord = () => gameState.word;
+  const getCurrentWord = () => gameState.currentWord;
   const getRound = () => gameState.round;
   const getTotalRounds = () => gameState.totalRounds;
   const getTimeLeft = () => gameState.timeLeft;
   const getWordChoices = () => gameState.wordChoices;
+  const getPhase = () => gameState.phase;
+  const getScores = () => gameState.scores;
 
   return (
     <GameContext.Provider
@@ -125,11 +127,13 @@ export function GameProvider({ children }) {
         getPlayers,
         getMessages,
         getDrawerId,
-        getWord,
+        getCurrentWord,
         getRound,
         getTotalRounds,
         getTimeLeft,
-        getWordChoices
+        getWordChoices,
+        getPhase,
+        getScores
       }}
     >
       {children}

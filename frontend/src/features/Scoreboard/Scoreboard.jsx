@@ -1,19 +1,21 @@
-import React from "react";
 import "./Scoreboard.css";
+import { useGame } from "../../context/GameContext";
 
-export default function Scoreboard({ scores = [] }) {
-  if (!scores?.length) return null;
 
-  const ordered = [...scores].sort((a, b) => (b.score || 0) - (a.score || 0));
+export default function Scoreboard() {
+  const {getScores} = useGame();
+  const scores = getScores() || {};
+  const ordered = Object.entries(scores).sort(([, a], [, b]) => b - a);
+  console.log(scores,ordered)
 
   return (
     <div className="Scoreboard">
       <h4>Scoreboard</h4>
       <ul>
-        {ordered.map((s) => (
-          <li key={s.id}>
-            <span className="Scoreboard__name">{s.name}</span>
-            <span className="Scoreboard__score">{s.score ?? 0}</span>
+        {ordered.map(([name, score]) => (
+          <li key={name}>
+            <span className="Scoreboard__name">{name}</span>
+            <span className="Scoreboard__score">{score ?? 0}</span>
           </li>
         ))}
       </ul>

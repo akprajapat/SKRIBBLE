@@ -13,10 +13,8 @@ const roomEventHandlers = {
       ...prev,
       round: payload.round,
       drawerId: payload.drawerId,
-      wordChoices: [],
-      currentWord: null,
-      hints: [],
-      timer: 60
+      players: payload.players,
+      phase: payload.phase
     }));
   },
 
@@ -25,7 +23,7 @@ const roomEventHandlers = {
 
   TIMER_TICK: (payload, setGameState) => {
     console.log("TIMER_TICK event received:", payload);
-    setGameState((prev) => ({ ...prev, timer: payload.timeLeft }));
+    setGameState((prev) => ({ ...prev, timeLeft: payload.timeLeft, timerType: payload.type }));
   },
 
   CHAT: (payload, setGameState) => {
@@ -34,10 +32,16 @@ const roomEventHandlers = {
   },
 
   SCOREBOARD: (payload, setGameState) =>
-    setGameState((prev) => ({ ...prev, scores: payload.scores })),
+    setGameState((prev) => ({ 
+    ...prev,
+    scores: payload.scores,
+    currentWord: payload.word,
+    round: payload.round,
+    phase: payload.phase
+   })),
 
   HINT_GENERATED: (payload, setGameState) =>
-    setGameState((prev) => ({ ...prev, hints: [...prev.hints, payload.hint] })),
+    setGameState((prev) => ({ ...prev, currentWord: payload.hint })),
 
   GAME_ENDED: (_, setGameState, resetGame) => resetGame(),
 };

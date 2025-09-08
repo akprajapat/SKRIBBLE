@@ -13,9 +13,11 @@ export default function PlayerList() {
         return (
           <div className="PlayerList__item" key={player.id}>
             <span className="PlayerList__rank">#{player.rank}</span>
-            <span className="PlayerList__name">{player.name}</span>
+            <span className="PlayerList__name">{player.name}
+              {isDrawer && <span className="PlayerList__drawer">✏️</span>}
+            </span>
             <span className="PlayerList__score">{player.score}</span>
-            {isDrawer && <span className="PlayerList__drawer">✏️</span>}
+            
           </div>
         );
       })}

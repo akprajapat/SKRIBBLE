@@ -1,58 +1,108 @@
+/* Reset for dropdown elements */
+.dropdown-container, .dropdown-label, .dropdown-toggle, .dropdown-menu, .dropdown-item {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+/* Dropdown Container */
 .dropdown-container {
   position: relative;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  border: lightgray 1px solid;
-  width: 50vw;
-  max-height: 50px;
-  margin: 0 auto;
+  display: inline-block;
+  width: 200px;
+  background-color: white;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  max-height: 100px;
 }
 
+/* Label */
 .dropdown-label {
   display: block;
-  font-weight: semi-bold;
-  font-size: 20px;
-  color: black;
-}
-
-.dropdown-toggle {
-  position: relative;
+  width: 100%;
+  padding: 6px 10px;
+  font-weight: bold;
   font-size: 14px;
-  text-align: left;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  color: #333;
+  text-align: center;
+  background-color: white;
+}
+
+/* Toggle Button (Default State) */
+.dropdown-toggle {  /* border-bottom: 2px solid #aaa; */
+  display: block;
+  background-color: #fff;
+  color: #333;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
   cursor: pointer;
-  width: 100px;
-}
-.arrow {
-  float: right;
+  position: relative;
+  transition: background-color 0.2s ease;
 }
 
+/* Toggle Hover */
+.dropdown-toggle:hover {
+  background-color: #f7d842; /* Yellow hover like Skribbl.io */
+}
 
+/* Toggle Focus */
+.dropdown-toggle:focus {
+  background-color: #f0e68c; /* Slightly darker yellow for focus */
+  outline: none;
+}
+
+/* Dropdown Arrow */
+.dropdown-toggle .arrow {
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* Dropdown Menu */
 .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  background-color: lightgrey;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background-color: #fff;
+  border: 2px solid #aaa;
+  border-top: none;
+  box-shadow: none;
+  z-index: 10;
+  padding: 0;
 }
 
+/* Dropdown Items */
 .dropdown-item {
-  padding-bottom: 5px;;
-  color: black;
-  text-align: center;
-  font-size: 14px;
-  cursor: pointer;
+  display: block;
   width: 100%;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
 }
 
+/* Item Hover */
 .dropdown-item:hover {
-  background-color: lightgrey;
+  background-color: #f7d842; /* Same yellow as hover */
 }
 
+/* Item Focus */
+.dropdown-item:focus {
+  background-color: #f0e68c;
+  outline: none;
+}

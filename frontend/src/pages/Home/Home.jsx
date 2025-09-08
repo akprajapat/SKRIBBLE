@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
 import usernameGenerator from "../../utils/usernameGenerator"
+import WordChoice from "../../features/WordChoice/WordChoice";
+import Scoreboard from "../../features/Scoreboard/Scoreboard";
 
 export default function Home() {
   const [usernameInput, setUsernameInput] = useState("");

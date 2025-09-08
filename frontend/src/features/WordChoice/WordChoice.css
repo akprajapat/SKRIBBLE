@@ -4,6 +4,7 @@
   border: 1px dashed #bbb;
   border-radius: 10px;
   background: #fffef7;
+  align-items: center;
 }
 
 .WordChoice__grid {
@@ -16,7 +17,7 @@
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #111;
-  background: #111;
+  background: rgb(17, 1, 1);
   color: #fff;
   cursor: pointer;
 }

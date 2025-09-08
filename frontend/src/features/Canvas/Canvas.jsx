@@ -13,6 +13,17 @@ export default function Canvas({isDrawer,roomId}) {
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+  const colors = [
+    "#000000", // black
+    "#ff0000", // red
+    "#00ff00", // green
+    "#0000ff", // blue
+    "#ffff00", // yellow
+    "#ffd700", // gold
+    "#8b4513", // brown
+    "#ff69b4", // pink
+    "#808080"  // grey
+  ];
 
   const socket = useSocket();
   // isDrawer = true;
@@ -342,7 +353,7 @@ export default function Canvas({isDrawer,roomId}) {
             <div className="current-tool">Selected: {tool}
             </div>
             <div className="palette">
-              {["#000000","#ff0000","#00b894","#0984e3","#fdcb6e","#e84393","#00cec9","#2d3436"].map((c) => (
+              {colors.map((c) => (
                 <button
                   key={c}
                   className={`Swatch ${color === c ? "active" : ""}`}

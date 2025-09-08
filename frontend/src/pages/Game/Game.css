@@ -1,33 +1,21 @@
 .Game {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
+  gap: 4px;
   width: 100vw;
 }
 
-.Topbar-container {
-  height: 5vh;
-  min-height: 30px;
+.Screen {
+  margin-top: 90px;
 }
 
-.Canvas-container {
-  height: auto;
-  position: relative;
-}
-
-/* Player list & Chat side by side */
 .player-chat-container {
   display: flex;
-  width: 100vw;
   justify-content: center;
-  /* box-sizing: border-box; */
-}
-/* Player list: 40% */
-.PlayerList {
-  width: 40vw;
-}
-
-/* Chat: 60% */
-.Chat {
-width: 60vw;
+  gap: 4px;
+  width: 100vw;
+  max-width: 1000px;
 }

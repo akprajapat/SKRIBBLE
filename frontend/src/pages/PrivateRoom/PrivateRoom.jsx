@@ -36,7 +36,6 @@ export default function PrivateRoom() {
   return (
     <div className="private-room">
       <div className="dropdowns">
-        <div className="dropdown-container">
           < Dropdown 
             label="Rounds"
             options={[2, 3, 4, 5]}
@@ -61,7 +60,6 @@ export default function PrivateRoom() {
             defaultValue={timer}
             onSelect={(e) => setTimer(Number(e))}
           />
-        </div>
       </div>
 
       <button className="start-btn" onClick={startGame}>

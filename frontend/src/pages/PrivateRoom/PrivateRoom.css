@@ -1,19 +1,4 @@
-.private-room {
-  display: flex;
-  flex-direction: column;
-  background: #fafafa;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-  position: relative;
-}
-
-.dropdowns{
-    margin-top: 5vh;
-    display: flex;
-    height: 30vh;
-}
-
-.dropdown-container {
+.dropdowns {
   display: grid;
   grid-template-columns: repeat(2, auto);
   width: 40vw;
@@ -52,8 +37,8 @@ button:hover {
 .player-chat-container {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 800px;
+  gap: 5px;
+  width: 100vw;
+  max-width: 950px;
   margin-bottom: 0;
 }

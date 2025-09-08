@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
 
 import Topbar from "../../components/Topbar/Topbar";
 import Canvas from "../../features/Canvas/Canvas";
 import Chat from "../../components/Chat/Chat";
+import Input from "../../components/Input/Input";
+
 import PlayerList from "../../components/Playerlist/Playerlist";
 import WordChoice from "../../features/WordChoice/WordChoice";
 import Scoreboard from "../../features/Scoreboard/Scoreboard";
@@ -15,48 +17,45 @@ export default function Game() {
   const socket = useSocket();
   const {
     getRoomId,
-    getPlayers,
-    getWordChoices,
-    getScores,
     getDrawerId,
     getPlayerId,
-    getRound,
-    getTotalRounds,
-    getCurrentWord,
-    getTimer
+    getPhase
+    
   } = useGame();
+
+  const [screen, setScreen] = useState(<Canvas />);
 
   const roomId = getRoomId();
   const playerId = getPlayerId();
   const isDrawer = getDrawerId() === playerId;
 
-  useEffect(() => {
-    console.log("Socket connected:", socket);
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected:", socket.id);
-    });
+  function getScreen(phase) {
+    if (phase === null || phase === "TURN") {
+      return <Canvas isDrawer={isDrawer} roomId={roomId}/>;
+    }
+    if (phase === "WORD_SELECTION") {
+      return <WordChoice />;
+    }
+    if (phase === "SCOREBOARD") {
+      return <Scoreboard />;
+    }
+  }
 
-  }, [socket]);
+  useEffect(() => {
+    setScreen(getScreen(getPhase()));
+  }, [getPhase]);
 
   return (
     <div className="Game">
-      <div className="Topbar-container">
-        <Topbar />
-      </div>
-      <div className="Canvas-container">
-        {/* {getWordChoices()?.length > 0 ? (
-          <WordChoice choices={getWordChoices()} />
-        ) : (
-        )} */}
-          <Canvas roomId={getRoomId()} isDrawer={isDrawer} />
+      <Topbar />
+      <div className="Screen">
+        {screen}
       </div>
       <div className="player-chat-container">
-        <PlayerList players={getPlayers()} />
+        <PlayerList />
         <Chat />
       </div>
-    </div> 
+      <Input />
+    </div>
   );
 }

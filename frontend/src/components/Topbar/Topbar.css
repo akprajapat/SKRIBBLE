@@ -2,6 +2,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e7e7e7;
-  background: #fafafa;
+  background: white;
+  padding: 0 15px;
+  height: 40px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border: 1px solid blue;
+  border-radius: 5px;
+  max-width: 900px;
+  min-width: 450px;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+}
+
+/* Round info */
+.Topbar__round {
+  flex: 1;
+  text-align: right;
+}
+
+/* Word display */
+.Topbar__word {
+  flex: 2;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.Topbar__letter  {
+  display: inline-block;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: bold;
+
+}
+
+.Topbar__word-length {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Timer section */
+.Topbar__timer {
+  flex: 1;
+  text-align: left;
 }
