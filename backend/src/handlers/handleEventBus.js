@@ -15,7 +15,9 @@ export default function handleEventBus(io) {
     "SCOREBOARD",
     "GAME_ENDED",
     "TIMER_CHECKPOINT",
-    "HINT_GENERATED"
+    "HINT_GENERATED",
+    "WORD_CHOICES_STARTED",
+
   ];
 
   const playerEvents = [

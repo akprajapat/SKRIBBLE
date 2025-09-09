@@ -160,6 +160,17 @@ export function emitWordChoicesEvent(socketId, payload) {
 }
 
 /**
+ * Emits word choices started event
+ * @param {string} roomId - ID of the room
+ * @param {Object} payload - phase Update - word_selection
+ * @param {string} [payload.phase] - must be "WORD_SELECTION"
+ * @param {number} [payload.drawerId] - who will choose the word
+ */
+export function emitWordChoicesStartedEvent(roomId, payload) {
+  eventBus.emit("WORD_CHOICES_STARTED", roomId, payload);
+}
+
+/**
  * Emits correct guess event
  * @param {string} socketId - Socket ID of guesser
  * @param {Object} payload

@@ -1,22 +1,21 @@
 import { 
   emitGameStartedEvent, 
   emitRoundStartedEvent,
-  emitWordSetEvent,
   emitWordChoicesEvent,
   sendChatEvent,
-  emitCorrectGuessEvent,
   emitScoreboardEvent,
   emitGameEndedEvent,
   emitDrawEvent,
   emitClearCanvasEvent,
   emitOnFillEvent,
-  emitGameStateEvent
+  emitGameStateEvent,
+  emitWordChoicesStartedEvent
 } from "../events/emitEvents.js";
 
 import Timer from "./timer.js";
 import Words from "./words.js";
 import Difficulty from "../constants/difficulty.js";
-import timerType from "../constants/timerType.js";
+import phase from "../constants/phase.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
 import wordList from "../constants/wordList.js";
 
@@ -37,6 +36,8 @@ import wordList from "../constants/wordList.js";
  * - GAME_STATE          { roomId, round,timeleft,word,drawerId, players }
  */
 
+const WORD_SELECTION_TIME = 10; // seconds to choose word
+const SHOW_SCOREBOARD_TIME = 5; // seconds to show scoreboard
 
 export default class Game {
   constructor({ roomId, totalRounds = 3, maxPlayers = 8, turnSeconds = 60, difficulty = Difficulty.MEDIUM }) {
@@ -51,6 +52,7 @@ export default class Game {
     this.round = 1;
     this.started = false;
 
+    this.phase = null; // "WORD_SELECTION", "TURN", "SCOREBOARD"
     this.words = null;
     this.wordChoices = [];
     this.scores = new Map();
@@ -64,6 +66,8 @@ export default class Game {
       roomId: this.roomId,
       round: this.round,
       timeLeft: this.timer.timeLeft,
+      type: this.timer.type,
+      phase: this.phase,
       word: this.words.getMaskedWord(),
       drawerId: this.players[this.drawerIndex].id,
       players: this.players.map(player => ({
@@ -120,34 +124,48 @@ export default class Game {
   }
 
   async _createTimerForTurn(){
-    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds, type: timerType.TURN });
+    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds, type: phase.TURN });
     this.timer.start(this.turnSeconds);
     this.words.registerHintCheckpoints(this.timer);
     this.timer.addCheckpoint(0,() => this._endTurn() );
   }
 
   async _createTimerForWordSelection(){
-    this.timer = new Timer({ roomId: this.roomId, durationSec: 20, type: timerType.WORD_SELECTION });
-    this.timer.start(20);
+    this.timer = new Timer({ 
+      roomId: this.roomId,
+      durationSec: WORD_SELECTION_TIME,
+      type: phase.WORD_SELECTION
+    });
+    this.timer.start();
     this.timer.addCheckpoint(0,() => {
       this.selectedWord(this.wordChoices[0]);
     });
   }
 
   async _createTimerForShowScoreboard(){
-    this.timer = new Timer({ roomId: this.roomId, durationSec: 10, type: timerType.SHOW_SCOREBOARD });
-    this.timer.start(10);
+    this.timer = new Timer({ 
+      roomId: this.roomId,
+      durationSec: SHOW_SCOREBOARD_TIME,
+      type: phase.SCOREBOARD 
+    });
+    this.timer.start();
     this.timer.addCheckpoint(0,() => {
       this._startWordSelection();
     });
   }
 
   async _sendWordChoices() {
+    this.phase = phase.WORD_SELECTION;
     const drawer = this.players[this.drawerIndex];
+
+    emitWordChoicesStartedEvent(this.roomId, {
+      phase: this.phase,
+      drawerId: drawer.id
+    });
+
     this.wordChoices = this.words.getWordChoices();
+
     emitWordChoicesEvent(drawer.socket, { 
-      phase: "WORD_SELECTION",
-      drawerId: drawer.id,
       wordChoices: this.wordChoices
     });
   }
@@ -158,37 +176,26 @@ export default class Game {
     this._startTurn();
   }
 
-  async _startWordSelection() {
-    if (this.players.length < 2) {
-      return this._endGame();
-    }
-    this._sendWordChoices();
-    this._createTimerForWordSelection();
-    this.guessedIds.clear();
-    this.scores.clear();
+
+  _createScoresToShow() {
+    const scoresToShow = new Map();
+    this.players.forEach(p => {
+      scoresToShow[p.name] = this.scores[p.name] || 0;
+    });
+    return scoresToShow;
   }
 
-  async _startTurn() {
-    const drawer = this.players[this.drawerIndex];
-    console.log("Starting turn with word:", this.words.getCurrentWord());
-    emitRoundStartedEvent(this.roomId, {
-      phase: "TURN",
-      round: this.round,
-      drawerId: drawer.id,
-      players: this.players,
-    });
-    this._createTimerForTurn();
-  }
 
   async _showScoreboard() {
     this._createTimerForShowScoreboard();
+    this.phase = phase.SCOREBOARD;
+
     emitScoreboardEvent(this.roomId, { 
-      scores: this.scores,
+      scores: this._createScoresToShow(),
       word: this.words.getCurrentWord(),
       round: this.round,
-      phase: "SCOREBOARD"
+      phase: this.phase
     });
-    this._updateScoresAndRanks();
   }
 
   isDrawer(socketId) {
@@ -196,26 +203,7 @@ export default class Game {
     return drawer && drawer.socket === socketId;
   }
 
-  async start(players) {
-    this.players = players;
-    this.drawerIndex = players.length - 1;
-    this.started = true;
-    this.words = new Words(this.roomId, wordList);
-    emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
-    players.forEach(p => {
-      sendChatEvent({ 
-        roomId: this.roomId, 
-        system: true, 
-        message: `Player ${p.name} joined the room` 
-      });
-    });
-    await this._startWordSelection();
-  }
 
-  chooseWord(playerId, word) {
-    this.words.setChoosedWord(word);
-    emitWordSetEvent(this.roomId, { word: "_".repeat(this.currentWord.length) });
-  }
 
   handleGuess(socketId, guessRaw) {
     const p = this.players.find(pl => pl.socket === socketId);
@@ -250,16 +238,57 @@ export default class Game {
     this.scores[this.players[this.drawerIndex].name] = this._calculateScoreForDrawer();
     this._showScoreboard();
     this._updateDrawerIndex();
+    this._updateScoresAndRanks();
+    this.guessedIds.clear();
     if (this.round > this.totalRounds) {
       this._endGame();
-    } else {
-      this.guessedIds.clear();
     }
   }
 
   _endGame() {
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
     emitGameEndedEvent(this.roomId, { scores });
+  }
+
+  async start(players) {
+    this.players = players;
+    this.drawerIndex = players.length - 1;
+    this.started = true;
+    this.words = new Words(this.roomId, wordList);
+    emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
+    players.forEach(p => {
+      sendChatEvent({ 
+        roomId: this.roomId, 
+        system: true, 
+        message: ` ${p.name} joined the room` 
+      });
+    });
+    this._startWordSelection();
+  }
+
+  async _startWordSelection() {
+    if (this.players.length < 2) {
+      return this._endGame();
+    }
+    this._sendWordChoices();
+    this._createTimerForWordSelection();
+    this.guessedIds.clear();
+    this.scores.clear();
+  }
+
+  async _startTurn() {
+    const drawer = this.players[this.drawerIndex];
+    console.log("Starting turn with word:", this.words.getCurrentWord());
+    this.phase = phase.TURN;
+
+    emitRoundStartedEvent(this.roomId, {
+      phase: this.phase,
+      round: this.round,
+      drawerId: drawer.id,
+      players: this.players,
+    });
+
+    this._createTimerForTurn();
   }
 
   onDraw(strokeData) {
@@ -289,14 +318,15 @@ export default class Game {
     if (this.players.length < 2) {
       this._endGame();
       return;
-    }    // If drawer left: move to next drawer and end current turn immediately
+    } 
+    if (idx < this.drawerIndex) {
+      this.drawerIndex--;
+    } 
+      // If drawer left: move to next drawer and end current turn immediately
     const drawer = this.players[this.drawerIndex];
-    if (drawer && drawer.id === leftPlayerId) {
+    if (drawer && drawer.socket === leftPlayerSocketId) {
       this.timer.stop();
       this._endTurn();
-    }
-    if (idx <= this.drawerIndex) {
-      this.drawerIndex--;
     }
   }
 }

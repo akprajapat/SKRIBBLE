@@ -38,7 +38,6 @@ export function guessWord(roomId, socketId, guess) {
  */
 export function onDraw(roomId, socketId, strokeData) {
   const { game, error } = getGame(roomId);
-  console.log("onDraw called with:", { roomId, socketId, strokeData, game, error });
   if (error) return { error };
   if (!game.isDrawer(socketId)) return { error: "Not your turn" };
   return game.onDraw(strokeData);
