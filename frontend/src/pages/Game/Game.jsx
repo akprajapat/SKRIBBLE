@@ -19,17 +19,14 @@ export default function Game() {
     getRoomId,
     getDrawerId,
     getPlayerId,
-    getPhase
-    
+    phase,
   } = useGame();
-
-  const [screen, setScreen] = useState(<Canvas />);
 
   const roomId = getRoomId();
   const playerId = getPlayerId();
   const isDrawer = getDrawerId() === playerId;
 
-  function getScreen(phase) {
+  function getScreen() {
     if (phase === null || phase === "TURN") {
       return <Canvas isDrawer={isDrawer} roomId={roomId}/>;
     }
@@ -41,15 +38,11 @@ export default function Game() {
     }
   }
 
-  useEffect(() => {
-    setScreen(getScreen(getPhase()));
-  }, [getPhase]);
-
   return (
     <div className="Game">
       <Topbar />
       <div className="Screen">
-        {screen}
+        {getScreen()}
       </div>
       <div className="player-chat-container">
         <PlayerList />

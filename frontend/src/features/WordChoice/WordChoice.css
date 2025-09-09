@@ -1,25 +1,48 @@
 .WordChoice {
-  margin: 12px;
-  padding: 12px;
-  border: 1px dashed #bbb;
-  border-radius: 10px;
-  background: #fffef7;
+  height: 50vh;
+  max-height: 600px;
+  min-height: 300px;
+  width: 100vw;
+  max-width: 930px;
+  min-width: 450px;
+
+  background: rgb(204, 216, 219);
+  border: 1px solid blue;
+  border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  gap: 30px;
+}
+
+.WordChoice__title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  color: blue;
+  font-size: 30px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding-top: 20px;
 }
 
 .WordChoice__grid {
-  margin-top: 8px;
   display: flex;
-  gap: 10px;
+  gap: 20px;
 }
 
 .WordChoice__btn {
-  padding: 10px 14px;
+  padding: 15px 20px;
   border-radius: 10px;
   border: 1px solid #111;
-  background: rgb(17, 1, 1);
+  background: rgb(90, 83, 83);
   color: #fff;
   cursor: pointer;
+  font-size: 20px;
 }
 
-.WordChoice__btn:hover { opacity: 0.92; }
+.WordChoice__btn:hover { 
+  opacity: 0.9;
+  background: brown;
+ }

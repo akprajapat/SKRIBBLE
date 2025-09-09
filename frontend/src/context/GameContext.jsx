@@ -9,7 +9,8 @@ const GameContext = createContext();
 
 export function GameProvider({ children }) {
   const socket = useSocket();
-
+  
+  const [phase, setPhase] = useState(null);
   const [gameState, setGameState] = useState({
     roomId: null,
     playerId: null,
@@ -24,7 +25,6 @@ export function GameProvider({ children }) {
     scores: {},
     started: false,
     wordChoices: [],
-    phase: null,
   });
 
   // ---------------- SETTERS ----------------
@@ -55,7 +55,6 @@ export function GameProvider({ children }) {
       totalRounds: 3,
       timeLeft: 60,
       wordChoices: [],
-      phase: null,
     });
   };
 
@@ -63,6 +62,7 @@ export function GameProvider({ children }) {
   useEffect(() => {
     if (!socket) return;
 
+    resetGame();
     const roomEvents = Object.keys(roomEventHandlers);
     const playerEvents = Object.keys(playerEventHandlers);
 
@@ -85,7 +85,7 @@ export function GameProvider({ children }) {
     const playerEvents = Object.entries(playerEventHandlers);
 
     roomEvents.forEach(([event, handler]) => {
-      gameEventBus.on(event, (payload) => handler(payload, setGameState, resetGame));
+      gameEventBus.on(event, (payload) => handler(payload, setGameState, setPhase, resetGame));
     });
 
     playerEvents.forEach(([event, handler]) => {
@@ -110,13 +110,17 @@ export function GameProvider({ children }) {
   const getTotalRounds = () => gameState.totalRounds;
   const getTimeLeft = () => gameState.timeLeft;
   const getWordChoices = () => gameState.wordChoices;
-  const getPhase = () => gameState.phase;
   const getScores = () => gameState.scores;
+  const getPlayerNameById = (id) => {
+    const player = gameState.players.find((p) => p.id === id);
+    return player ? player.name : "Unknown";
+  }
 
   return (
     <GameContext.Provider
       value={{
         gameState,
+        phase,
         setRoomInfo,
         setUsername,
         resetGame,
@@ -132,8 +136,8 @@ export function GameProvider({ children }) {
         getTotalRounds,
         getTimeLeft,
         getWordChoices,
-        getPhase,
-        getScores
+        getScores,
+        getPlayerNameById
       }}
     >
       {children}

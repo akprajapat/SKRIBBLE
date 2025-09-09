@@ -10,10 +10,10 @@ export default function Scoreboard() {
 
   return (
     <div className="Scoreboard">
-      <h4>Scoreboard</h4>
-      <ul>
+      <h4 className="Scoreboard__title">Scoreboard</h4>
+      <ul className="Scoreboard__list">
         {ordered.map(([name, score]) => (
-          <li key={name}>
+          <li key={name} className="Scoreboard__item">
             <span className="Scoreboard__name">{name}</span>
             <span className="Scoreboard__score">{score ?? 0}</span>
           </li>

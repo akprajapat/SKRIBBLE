@@ -8,14 +8,20 @@ const roomEventHandlers = {
     }));
   },
 
-  ROUND_STARTED: (payload, setGameState) => {
+  ROUND_STARTED: (payload, setGameState, setPhase) => {
     setGameState((prev) => ({
       ...prev,
       round: payload.round,
       drawerId: payload.drawerId,
       players: payload.players,
-      phase: payload.phase
     }));
+    setPhase(payload.phase);
+  },
+
+  WORD_CHOICES_STARTED: (payload, setGameState, setPhase) => {
+    console.log("WORD_CHOICES_STARTED event received:", payload);
+    setGameState((prev) => ({ ...prev, drawerId: payload.drawerId }));
+    setPhase(payload.phase);
   },
 
   WORD_SET: (payload, setGameState) =>
@@ -31,14 +37,15 @@ const roomEventHandlers = {
     setGameState((prev) => ({ ...prev, messages: [...prev.messages, payload] }));
   },
 
-  SCOREBOARD: (payload, setGameState) =>
+  SCOREBOARD: (payload, setGameState,setPhase) => {
     setGameState((prev) => ({ 
     ...prev,
     scores: payload.scores,
     currentWord: payload.word,
     round: payload.round,
-    phase: payload.phase
-   })),
+   }));
+   setPhase(payload.phase);
+  },
 
   HINT_GENERATED: (payload, setGameState) =>
     setGameState((prev) => ({ ...prev, currentWord: payload.hint })),
