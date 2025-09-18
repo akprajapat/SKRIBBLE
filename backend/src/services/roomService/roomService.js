@@ -27,7 +27,7 @@ export function joinPrivateRoom(args) {
 }
 
 export function leaveRoom(socketId) {
-  const roomId = getMapping(socketId);
+  const roomId = getMapping(socketId);  
   if (!roomId) return { error: "Map { socketId: roomId } not found" };
 
   const room = rooms.get(roomId);
@@ -46,6 +46,13 @@ export function hasRoom(roomId) {
   return rooms.has(roomId);
 }
 
+export function updateRoomGameEnded(roomId) {
+  const room = rooms.get(roomId);
+  if (room) {
+    room.gameEnded();
+  }
+}
+
 export function startGameByHost(roomId, socketId) {
   const room = rooms.get(roomId);
   if (!room) return { error: "Room not found" };
@@ -55,6 +62,14 @@ export function startGameByHost(roomId, socketId) {
   }
   room.startGame();
   return { success: true };
+}
+
+export function validateRoom(roomId) {
+const  isValid = rooms.has(roomId);
+  if (!isValid) {
+    return { roomIsValid: false, playerAlreadyJoinedRoom: false };
+  }
+  return { roomIsValid: true, playerAlreadyJoinedRoom: roomId === getMapping(socketId) };
 }
 
 export default getRoom;

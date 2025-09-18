@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import handleRoomEvents from './handlers/handleRoomEvents.js';
 import handleGameEvents from './handlers/handleGameEvents.js';
 import handleEventBus from './handlers/handleEventBus.js';
+import { leaveRoom } from './services/roomService/roomService.js';
 
 export default function attachSocket(server) {
   const io = new Server(server, {
@@ -21,6 +22,7 @@ export default function attachSocket(server) {
 
     socket.on('disconnect', () => {
       console.log(`❌ Socket disconnected: ${socket.id} `);
+      leaveRoom(socket.id);
     });
   });
 

@@ -22,7 +22,7 @@ export default class RoomJoinTemplate {
 
     addMapping(socket.id, room.id, player.id);
 
-    this.afterJoin(room, player.socket);
+    this.afterJoin(room, player.id);
 
     return { roomId: room.id, playerId: player.id };
   }
@@ -31,12 +31,5 @@ export default class RoomJoinTemplate {
   shouldCreateRoom() { return false; }
   createRoom() { throw new Error("createRoom() must be implemented"); }
   validateRoom() { return null; } // return error message or null
-
-  afterJoin(room, playerSocketId) {
-    if (room.isGameStarted()) {
-      room.sendGameState(playerSocketId);
-    } else {
-      room.startGame(playerSocketId);
-    }
-  }
+  afterJoin(room, playerId) { if (!room.isGameStarted()) {room.startGame(playerId);}}
 }

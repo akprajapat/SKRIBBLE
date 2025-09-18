@@ -1,7 +1,7 @@
 const socketRoomMap = new Map(); // socketId -> { roomId, playerId }
 
 export function addMapping(socketId, roomId) {
-  socketRoomMap.set(socketId, { roomId });
+  socketRoomMap.set(socketId, roomId );
 }
 
 export function hasMapping(socketId) {

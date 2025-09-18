@@ -1,12 +1,14 @@
+import { emitCanvasSyncEvent } from "../events/emitEvents.js";
 import {
   selectedWord,
   guessWord,
   onDraw,
   clearCanvas,
   onFill,
+  canvasUpdate,
   endTurn
 } from "../services/gameService.js";
-import getRoom, { startGameByHost } from "../services/roomService/roomService.js";
+import { startGameByHost } from "../services/roomService/roomService.js";
 
 export default function handleGameEvents(socket) {
   socket.on("START_GAME", async ({ roomId }, cb) => {
@@ -46,13 +48,12 @@ export default function handleGameEvents(socket) {
     endTurn(roomId, socket.id);
   });
 
-  socket.on("GET_GAME_STATE", ({ roomId }) => {
-    console.log(`GET_GAME_STATE event received { roomId: ${roomId} }`);
-    const gameState = getGameState(roomId);
-    socket.emit("GET_GAME_STATE", gameState);
+  socket.on("CANVAS_IMAGE", ({ roomId, requestId, image }) => {
+    console.log(`CANVAS_IMAGE event received { DrawerSocketId: ${socket.id}, requestId: ${requestId} image: ${image} }`);
+    canvasUpdate(roomId, socket.id, requestId, image);
   });
 
   socket.on("CANVAS_SYNC", ({ roomId, image }) => {
-    socket.to(roomId).emit("CANVAS_SYNC", { image });
+    emitCanvasSyncEvent(roomId, {image});
   });
 }

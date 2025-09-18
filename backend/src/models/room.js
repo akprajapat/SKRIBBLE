@@ -30,33 +30,6 @@ export default class Room {
 
   isGameStarted() { return this.gameStarted; }
 
-  addPlayer({name, socket}) {
-    if (this.isFull()) return {error: "Room is Full"};
-    const player = new Player({ id: this._nextPlayerId++, name, socket });
-    this.players.push(player);
-    if (this.players.length === 1) this.hostId = player.socket;
-    sendChatEvent({
-      roomId: this.id,
-      system: true,
-      message: `${player.name} joined the room`
-    });
-    return player;
-  }
-
-  removePlayerBySocket(socketId) {
-    const idx = this.players.findIndex(p => p.socket === socketId);
-    if (idx === -1) return null;
-    this.game.handlePlayerLeave(socketId);
-    const [p] = this.players.splice(idx, 1);
-    this._updateHost();
-    sendChatEvent({
-      roomId: this.id,
-      system: true,
-      message: `${p.name} left the room`
-    });
-    return p;
-  }
-
   _updateHost(){
     if (this.players.length === 0) {
       this.hostId = null;
@@ -73,6 +46,40 @@ export default class Room {
     return this.players.find(p => p.id === id);
   }
 
+  addPlayer({name, socket}) {
+    if (this.isFull()) return {error: "Room is Full"};
+
+    const player = new Player({ id: this._nextPlayerId++, name, socket });
+    this.players.push(player);
+
+    if (this.players.length === 1) this.hostId = player.socket;
+
+    sendChatEvent({
+      roomId: this.id,
+      system: true,
+      message: `${player.name} joined the room`
+    });
+
+    if (this.gameStarted) {
+      this.game.handlePlayerJoin(player);
+    }
+    return player;
+  }
+
+  removePlayerBySocketId(socketId) {
+    const idx = this.players.findIndex(p => p.socket === socketId);
+    if (idx === -1) return null;
+
+    sendChatEvent({
+      roomId: this.id,
+      system: true,
+      message: `${this.players[idx].name} left the room`
+    });
+
+    this.game.handlePlayerLeave(socketId);
+    this._updateHost();
+  }
+
   _canStartGame(requesterId=null) {
     if (this.gameStarted) return false;
     if (this.players.length < 2) return false;
@@ -80,21 +87,14 @@ export default class Room {
     return true;
   }
 
+  gameEnded() {
+    this.gameStarted = false;
+  }
+
   startGame(playerId=null) {
     if(this._canStartGame(playerId)){
       this.gameStarted = true;
       this.game.start(this.players);
     } 
-  }
-
-  sendGameState(socketId) {
-    this.game.sendGameState(socketId);
-  }
-
-  syncGameState(playerId) {
-    emitGameStateEvent(playerId, { 
-      roomId: this.id,
-      gameData: this.game 
-    });
   }
 }

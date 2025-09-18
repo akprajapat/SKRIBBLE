@@ -4,6 +4,7 @@ import {
   joinPublicRoomById,
   createPrivateRoom,
   leaveRoom,
+  validateRoom
   // startGameByHost,
 } from "../services/roomService/roomService.js";
 
@@ -38,9 +39,10 @@ export default function handleRoomEvents(socket) {
     cb(result);
   });
 
-  socket.on("disconnect", () => {
-    console.log(`Socket disconnected, handling leave: ${socket.id}`);
+  socket.on("PLAYER_LEAVE", ({ roomId }) => {
+    console.log(`PLAYER_LEAVE event received { roomId: ${roomId}, socketId: ${socket.id} }`);
     leaveRoom(socket.id);
   });
+
 }
 

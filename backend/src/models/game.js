@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { 
   emitGameStartedEvent, 
   emitRoundStartedEvent,
@@ -9,7 +11,9 @@ import {
   emitClearCanvasEvent,
   emitOnFillEvent,
   emitGameStateEvent,
-  emitWordChoicesStartedEvent
+  emitWordChoicesStartedEvent,
+  emitGetCanvasEvent,
+  emitPlayerListUpdateEvent
 } from "../events/emitEvents.js";
 
 import Timer from "./timer.js";
@@ -18,6 +22,7 @@ import Difficulty from "../constants/difficulty.js";
 import phase from "../constants/phase.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
 import wordList from "../constants/wordList.js";
+import { updateRoomGameEnded } from '../services/roomService/roomService.js';
 
 /**
  * Emits (to eventBus):
@@ -58,6 +63,7 @@ export default class Game {
     this.scores = new Map();
     this.guessedIds = new Set();
     this.timer = new Timer({ roomId, durationSec: turnSeconds });
+    this.pendingCanvasRequests = new Map();
     
   }
 
@@ -68,16 +74,34 @@ export default class Game {
       timeLeft: this.timer.timeLeft,
       type: this.timer.type,
       phase: this.phase,
+      started: this.started,
       word: this.words.getMaskedWord(),
       drawerId: this.players[this.drawerIndex].id,
-      players: this.players.map(player => ({
-        id: player.id,
-        name: player.name,
-        score: this.scores[player.id] || 0,
-      }))
+      players: this._serializePlayersList(),
+
     };
   }
 
+  resetGameState() {
+    this.started = false;
+    this.phase = null;
+    this.round = 1;
+    this.drawerIndex = 0;
+    this.scores.clear();
+    this.guessedIds.clear();
+    this.timer.stop();
+    this.pendingCanvasRequests.clear();
+    this.drawerLeft = false;
+  }
+
+  _serializePlayersList(){
+    return this.players.map(player => ({
+    id: player.id,
+    name: player.name,
+    score: player.score || 0,
+  }))
+
+  }
   _updateDrawerIndex() {
     this.drawerIndex--;
     if (this.drawerIndex < 0) {
@@ -87,9 +111,7 @@ export default class Game {
   }
 
   _calculateScore(){
-    const timeFactor = Math.max(1, this.timer.timeLeft);
-    const base = 100;
-    return Math.min(450, base + timeFactor * 10);
+    return Math.min(450, this.timer.timeLeft * 10);
   }
 
   _calculateScoreForDrawer(){
@@ -106,7 +128,7 @@ export default class Game {
   async _updateScoresAndRanks() {
     const newScores = [];
     this.players.forEach(p => {
-      const updatedScore = p.updateScore(this.scores[p.name]);
+      const updatedScore = p.updateScore(this.scores[p.id]);
       newScores.push({ id: p.id, score: updatedScore });
     });
 
@@ -180,7 +202,7 @@ export default class Game {
   _createScoresToShow() {
     const scoresToShow = new Map();
     this.players.forEach(p => {
-      scoresToShow[p.name] = this.scores[p.name] || 0;
+      scoresToShow[p.id] = this.scores[p.id] || 0;
     });
     return scoresToShow;
   }
@@ -209,20 +231,20 @@ export default class Game {
     const p = this.players.find(pl => pl.socket === socketId);
     if (this.guessedIds.has(socketId)) return;
     const guess = guessRaw.trim().toLowerCase();
+    const drawerId = this.players[this.drawerIndex].id;
     
     if (this.words.isCorrectGuess(guess)) {
       const points = this._calculateScore();
       if (p) {
-        p.updateScore(points);
         this.guessedIds.add(p.id);
-        this.scores[p.name] = points;
+        this.scores[p.id] = points;
         sendChatEvent({ 
           roomId: this.roomId, 
           system: true, 
           message: ` ${p.name} guessed the word!` 
         });
 
-        const aliveGuessers = this.players.filter(pl => pl.connected && pl.id !== this.players[this.drawerIndex].id);
+        const aliveGuessers = this.players.filter(pl => pl.id !== drawerId);
         const allGuessed = aliveGuessers.every(pl => this.guessedIds.has(pl.id));
         if (allGuessed) {
           this.timer.stop();
@@ -235,7 +257,9 @@ export default class Game {
   }
 
   _endTurn() {
-    this.scores[this.players[this.drawerIndex].name] = this._calculateScoreForDrawer();
+    if (!this.drawerLeft) {
+      this.scores[this.players[this.drawerIndex].id] = this._calculateScoreForDrawer();
+    }
     this._showScoreboard();
     this._updateDrawerIndex();
     this._updateScoresAndRanks();
@@ -243,11 +267,15 @@ export default class Game {
     if (this.round > this.totalRounds) {
       this._endGame();
     }
+    this.drawerLeft = false;
   }
 
   _endGame() {
+    this.timer.stop();
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
     emitGameEndedEvent(this.roomId, { scores });
+    this.started = false;
+    updateRoomGameEnded(this.roomId);
   }
 
   async start(players) {
@@ -291,6 +319,8 @@ export default class Game {
     this._createTimerForTurn();
   }
 
+  // Canavas Events
+
   onDraw(strokeData) {
     emitDrawEvent(this.roomId,  strokeData );
   }
@@ -307,26 +337,58 @@ export default class Game {
     emitClearCanvasEvent(this.roomId);
   }
 
-  sendGameState(socketId) {
-    emitGameStateEvent(socketId, this._getGameState());
+  getCanvasFromDrawer() {
+    const requestId = uuidv4();
+    return new Promise((resolve) => {
+      this.pendingCanvasRequests.set(requestId, (image) => {
+        resolve(image);
+      });
+      emitGetCanvasEvent(this.players[this.drawerIndex].socket, { requestId });
+    });
+  }
+
+  canvasUpdate(requestId, image) {
+    if (this.pendingCanvasRequests.has(requestId)) {
+      const callback = this.pendingCanvasRequests.get(requestId);
+      this.pendingCanvasRequests.delete(requestId);
+      callback(image);
+    }
+  }
+
+  async handlePlayerJoin(player){
+    const image = await this.getCanvasFromDrawer();
+    emitGameStateEvent(player.socket, {
+      ...this._getGameState(),
+      image: image
+    });
+    emitPlayerListUpdateEvent(this.roomId, { players: this._serializePlayersList() });
   }
 
   handlePlayerLeave(leftPlayerSocketId) {
     const idx = this.players.findIndex(p => p.socket === leftPlayerSocketId);
     if (idx === -1) return;
-    this.players.splice(idx, 1);
-    if (this.players.length < 2) {
-      this._endGame();
-      return;
-    } 
+
     if (idx < this.drawerIndex) {
       this.drawerIndex--;
     } 
-      // If drawer left: move to next drawer and end current turn immediately
+
     const drawer = this.players[this.drawerIndex];
     if (drawer && drawer.socket === leftPlayerSocketId) {
+      this.drawerLeft = true;
+      this.drawerIndex--;
       this.timer.stop();
+      this.players.splice(idx, 1);
       this._endTurn();
     }
+    else {
+      this.players.splice(idx, 1);
+    }
+
+    if (this.players.length < 2) {
+      this._endGame();
+      return;
+    }
+    emitPlayerListUpdateEvent(this.roomId, { players: this._serializePlayersList() });
   }
+
 }

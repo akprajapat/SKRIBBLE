@@ -17,13 +17,15 @@ export default function handleEventBus(io) {
     "TIMER_CHECKPOINT",
     "HINT_GENERATED",
     "WORD_CHOICES_STARTED",
+    "PLAYER_LIST_UPDATE"
 
   ];
 
   const playerEvents = [
     "WORD_CHOICES",
     "CORRECT_GUESS",
-    "GAME_STATE"
+    "GAME_STATE",
+    "GET_CANVAS"
   ];
 
   roomEvents.forEach(event => {

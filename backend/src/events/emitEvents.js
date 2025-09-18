@@ -99,10 +99,21 @@ export function emitClearCanvasEvent(roomId) {
 }
 
 /**
+ * requesting get canvas to drawer
+ * @param {*} socketId socket of drawer
+ * @param {*} payload  
+ * @param {uuidv4} payload.requestId uuidv4 unique request id for particular new player.
+ */
+
+export function emitGetCanvasEvent(socketId, payload) {
+  eventBus.emit("GET_CANVAS", socketId, payload);
+}
+
+/**
  * Emits canvas sync event
  * @param {string} roomId - ID of the room
  * @param {Object} payload
- * @param {Array<Object>} payload.elements - Array of canvas elements to sync
+ * @param {Base64URLString} payload.image - 
  */
 export function emitCanvasSyncEvent(roomId, payload) {
   eventBus.emit("CANVAS_SYNC", roomId, payload);
@@ -190,4 +201,14 @@ export function emitCorrectGuessEvent(socketId, payload) {
  */
 export function emitGameStateEvent(socketId, payload) {
   eventBus.emit("GAME_STATE", socketId, payload);
+}
+
+/**
+ * Emits player list update event
+ * @param {string} roomId - ID of the room
+ * @param {Object} payload
+ * @param {Array<{id: string, name: string, score: number}>} payload.players - Updated list of players
+ */
+ export function emitPlayerListUpdateEvent(roomId, payload) {
+  eventBus.emit("PLAYER_LIST_UPDATE", roomId, payload);
 }

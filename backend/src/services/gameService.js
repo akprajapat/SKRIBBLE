@@ -78,3 +78,11 @@ export function showScoreboard(roomId) {
   if (error) return { error };
   return game.getScoreboard();
 }
+
+export function canvasUpdate(roomId, socketId, requestId, image){
+  const { game, error } = getGame(roomId);
+  if (error) return { error };
+  if (!game.isDrawer(socketId)) return { error: "Not your turn" };
+  console.log("event received at Canvas Update from drawer in gameService", requestId);
+  game.canvasUpdate(requestId, image);
+}
