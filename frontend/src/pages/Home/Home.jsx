@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
 import usernameGenerator from "../../utils/usernameGenerator"
-import WordChoice from "../../features/WordChoice/WordChoice";
-import Scoreboard from "../../features/Scoreboard/Scoreboard";
+import "./Home.css";
 
 export default function Home() {
   const [usernameInput, setUsernameInput] = useState("");
@@ -55,22 +54,25 @@ export default function Home() {
 
   return (
     <div className="Home">
-      <h1>🎨 Scribble Game</h1>
-      <input
-        value={usernameInput}
-        placeholder="Enter your name"
-        onChange={(e) => setUsernameInput(e.target.value)}
-      />
-      <div>
-        <button onClick={joinPublicRoom}>Join Public Room</button>
-        <button onClick={createPrivateRoom}>Create Private Room</button>
+      <h1 className="Home__title">🎨 Scribble Game</h1>
+      <div className="Home__section">
+        <input className="Home__input"
+          value={usernameInput}
+          placeholder="Enter your name"
+          onChange={(e) => setUsernameInput(e.target.value)}
+        />
+        <button className="Home__btn" onClick={joinPublicRoom}>Join Public Room</button>
       </div>
-      <input
+      <div className="Home__section">
+        <input className="Home__input"
         value={roomId}
         placeholder="Enter Private Room ID"
         onChange={(e) => setRoomId(e.target.value)}
       />
-      <button onClick={joinPrivateRoom}>Join Private Room</button>
+      <button className="Home__btn" onClick={joinPrivateRoom}>Join Private Room</button>
+      </div>
+      <button className="Home__btn" onClick={createPrivateRoom}>Create Private Room</button>
+
     </div>
   );
 }

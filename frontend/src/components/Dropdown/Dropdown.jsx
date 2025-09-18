@@ -17,10 +17,10 @@ function Dropdown ({ label, options, onSelect, defaultValue }){
 
   return (
     <div className="dropdown-container" ref={dropdownRef}>
-      <label className="dropdown-label">{label}</label>
+      <label className="dropdown-label">{label  }</label>
       <button className="dropdown-toggle" onClick={() => setIsOpen(!isOpen)}>
         {selected || defaultValue || 'Select an option'}
-        <span className="arrow">&#x25BC;</span>
+        <span className="arrow">   &#x25BC;</span>
 
       {isOpen && (
         <div className="dropdown-menu">

@@ -98,6 +98,7 @@ export function GameProvider({ children }) {
     };
   }, []);
 
+
   // ---------------- GETTERS ----------------
   const getRoomId = () => gameState.roomId;
   const getPlayerId = () => gameState.playerId;
@@ -111,8 +112,9 @@ export function GameProvider({ children }) {
   const getTimeLeft = () => gameState.timeLeft;
   const getWordChoices = () => gameState.wordChoices;
   const getScores = () => gameState.scores;
+  const getStarted = () => gameState.started;
   const getPlayerNameById = (id) => {
-    const player = gameState.players.find((p) => p.id === id);
+    const player = gameState.players.find(p => p.id === id);
     return player ? player.name : "Unknown";
   }
 
@@ -137,6 +139,7 @@ export function GameProvider({ children }) {
         getTimeLeft,
         getWordChoices,
         getScores,
+        getStarted,
         getPlayerNameById
       }}
     >

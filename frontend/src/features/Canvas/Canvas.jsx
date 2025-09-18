@@ -308,17 +308,32 @@ export default function Canvas({isDrawer,roomId}) {
       img.src = image;
     };
 
+    const onGetCanvas = ({requestId}) => {
+      const image = ctx.canvas.toDataURL(); // Or from context
+      socket.emit('CANVAS_IMAGE', { roomId, requestId, image });
+    }
+
 
     socket.on("DRAW", (payload) => {console.log("event recieved at on Draw", payload); onDraw(payload)});
     socket.on("CLEAR_CANVAS", () => onClear());
     socket.on("ON_FILL", (fillData) => {console.log("event recieved at on Fill", fillData); onFill(fillData)});
     socket.on("CANVAS_SYNC", (syncData) => {console.log("event recieved at on Canvas Sync", syncData); onCanvasSync(syncData)});
+    socket.on('GET_CANVAS', ({ requestId }) => {console.log("GET_CANVAS event recieved ", requestId); onGetCanvas({ requestId });});
+    socket.on("GAME_STATE", (payload) => {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+      };
+      img.src = payload.image;
+    });
 
     return () => {
       socket.off("DRAW", onDraw);
       socket.off("CLEAR_CANVAS", onClear);
       socket.off("ON_FILL", onFill);
       socket.off("CANVAS_SYNC", onCanvasSync);
+      socket.off("GET_CANVAS", onGetCanvas);
     };
   }, [socket, ctx]);
 

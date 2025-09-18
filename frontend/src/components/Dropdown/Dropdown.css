@@ -11,30 +11,28 @@
 
 /* Dropdown Container */
 .dropdown-container {
-  position: relative;
-  display: inline-block;
+  border: solid 1px blue;
+  display: flex;
+  justify-content: space-between;
   width: 200px;
   background-color: white;
-  border-radius: 6px;
   font-family: Arial, sans-serif;
   max-height: 100px;
 }
 
 /* Label */
 .dropdown-label {
-  display: block;
-  width: 100%;
+  display: flex;
+  width: 60%;
   padding: 6px 10px;
   font-weight: bold;
   font-size: 14px;
   color: #333;
-  text-align: center;
-  background-color: white;
+  text-align: left;
 }
 
 /* Toggle Button (Default State) */
-.dropdown-toggle {  /* border-bottom: 2px solid #aaa; */
-  display: block;
+.dropdown-toggle {  
   background-color: #fff;
   color: #333;
   padding: 6px 10px;
@@ -43,17 +41,18 @@
   text-align: center;
   cursor: pointer;
   position: relative;
+  width: 40%;
   transition: background-color 0.2s ease;
 }
 
 /* Toggle Hover */
 .dropdown-toggle:hover {
-  background-color: #f7d842; /* Yellow hover like Skribbl.io */
+  background-color: lightblue; /* Yellow hover like Skribbl.io */
 }
 
 /* Toggle Focus */
 .dropdown-toggle:focus {
-  background-color: #f0e68c; /* Slightly darker yellow for focus */
+  background-color: lightblue; /* Slightly darker yellow for focus */
   outline: none;
 }
 
@@ -98,11 +97,11 @@
 
 /* Item Hover */
 .dropdown-item:hover {
-  background-color: #f7d842; /* Same yellow as hover */
+  background-color: lightblue; /* Same yellow as hover */
 }
 
 /* Item Focus */
 .dropdown-item:focus {
-  background-color: #f0e68c;
+  background-color: lightblue;
   outline: none;
 }

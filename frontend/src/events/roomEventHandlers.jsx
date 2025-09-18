@@ -47,6 +47,8 @@ const roomEventHandlers = {
    setPhase(payload.phase);
   },
 
+  PLAYER_LIST_UPDATE: (payload, setGameState) => setGameState((prev) => ({...prev, players: payload.players})),
+
   HINT_GENERATED: (payload, setGameState) =>
     setGameState((prev) => ({ ...prev, currentWord: payload.hint })),
 

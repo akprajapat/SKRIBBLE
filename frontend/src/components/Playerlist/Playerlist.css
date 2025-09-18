@@ -3,7 +3,7 @@
   background: white; /* Darker, almost black background for Skribbl.io's chalkboard vibe */
   border: 1px solid blue; /* Thick, bright yellow border for a bold outline */
   border-radius: 5px; /* More rounded corners for a playful look */
-  min-width: 200px; /* Narrower for a compact sidebar */
+  min-width: 250px; /* Narrower for a compact sidebar */
   max-width: 300px; /* Tighter max-width to match Skribbl.io's layout */
   width: 40vw;
   height: 40vh; /* Kept height to fit game interface */
@@ -46,6 +46,7 @@
 
 .PlayerList__rank {
   font-size: 18px;
+  max-width: 20px;
 }
 
 /* Name */
@@ -53,10 +54,22 @@
   font-weight: bold;
   font-size: 14px; /* Smaller for compact fit */
   color: #000; /* Black for maximum contrast */
+  max-width: 150px; /* Reduced max-width for tighter layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
 /* Score */
 .PlayerList__score {
   color: blue; /* Light blue for score to stand out */
   font-size: 15px; /* Very small for secondary info */
+  text-align: right;
+}
+
+.PlayerList__you {
+  font-size: 12px;
+  color: #888; /* Gray for secondary info */
+  margin-left: 5px;
 }

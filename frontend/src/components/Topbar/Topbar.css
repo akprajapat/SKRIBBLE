@@ -16,12 +16,14 @@
   width: 100vw;
   position: fixed;
   top: 0;
+  z-index: 10;
 }
 
 /* Round info */
 .Topbar__round {
   flex: 1;
   text-align: right;
+  margin-right: 30px;
 }
 
 /* Word display */

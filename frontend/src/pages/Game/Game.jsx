@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
+import { useParams, useNavigate, useLocation,  useNavigationType } from "react-router-dom";
 
 import Topbar from "../../components/Topbar/Topbar";
 import Canvas from "../../features/Canvas/Canvas";
@@ -19,12 +20,36 @@ export default function Game() {
     getRoomId,
     getDrawerId,
     getPlayerId,
+    getStarted,
+    resetGame,
     phase,
   } = useGame();
 
-  const roomId = getRoomId();
+  const { roomId } = useParams();
+  const navigate = useNavigate();
   const playerId = getPlayerId();
   const isDrawer = getDrawerId() === playerId;
+  const isMounted = useRef(0);
+
+  useEffect(() => {
+    // Validate direct access to the roomId
+    console.log("Validating room...", roomId, getRoomId());
+    if (roomId !== getRoomId()) {
+      navigate('/');
+    }
+  }, [roomId, navigate]);
+
+  useEffect(() => {
+    return () => {
+      console.log("isMount ",isMounted.current);
+      if (isMounted.current > 4) {
+        socket.emit("PLAYER_LEAVE", { roomId, playerId });
+        resetGame();
+      }
+    }
+  }, [socket]);
+
+  isMounted.current++;
 
   function getScreen() {
     if (phase === null || phase === "TURN") {
@@ -37,6 +62,7 @@ export default function Game() {
       return <Scoreboard />;
     }
   }
+
 
   return (
     <div className="Game">

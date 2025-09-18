@@ -36,7 +36,7 @@ export default function PrivateRoom() {
   return (
     <div className="private-room">
       <div className="dropdowns">
-          < Dropdown 
+          < Dropdown className = "dropdown"
             label="Rounds"
             options={[2, 3, 4, 5]}
             defaultValue={rounds}
@@ -54,7 +54,7 @@ export default function PrivateRoom() {
             defaultValue={difficulty}
             onSelect={(e) => setDifficulty(e)}
           />
-          < Dropdown
+          < Dropdown className="dropdown"
             label="Timer(s)"
             options={[30, 45, 60, 80, 90, 120]}
             defaultValue={timer}

@@ -1,3 +1,9 @@
+.private-room {
+  display: flex;
+  flex-direction: column;
+  gap: 10vw;
+}
+
 .dropdowns {
   display: grid;
   grid-template-columns: repeat(2, auto);
@@ -7,6 +13,10 @@
   margin-left: 0%;
   margin-right: 0;
   gap: 10vw;
+}
+
+.dropdown {
+  display: flex;
 }
 
 .start-btn {
