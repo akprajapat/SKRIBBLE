@@ -320,6 +320,7 @@ export default function Canvas({isDrawer,roomId}) {
     socket.on("CANVAS_SYNC", (syncData) => {console.log("event recieved at on Canvas Sync", syncData); onCanvasSync(syncData)});
     socket.on('GET_CANVAS', ({ requestId }) => {console.log("GET_CANVAS event recieved ", requestId); onGetCanvas({ requestId });});
     socket.on("GAME_STATE", (payload) => {
+      console.log("CANVAS GAME_STATE EBENT",payload);
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);

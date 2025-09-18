@@ -1,0 +1,45 @@
+.Result {
+  height: 50vh;
+  max-height: 600px;
+  min-height: 300px;
+  width: 100vw;
+  max-width: 930px;
+  min-width: 450px;
+
+  background: rgb(204, 216, 219);
+  border: 1px solid blue;
+  border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Result__title {
+  font-size: 30px; /* Slightly larger for prominence */
+  font-weight: bold; /* Bold title */
+  color: blue; /* Darker text for contrast */
+  text-align: center; /* Center the title like Skribbl.io */
+}
+
+.Result__list {
+  list-style: none;
+}
+
+.Result__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 20px; /* Smaller font for compact rows */
+  margin: 10px;
+  width: 50vw;
+}
+
+.Result__name {
+  font-weight: 600; /* Bold names */
+  color: black; /* Dark text for readability */
+}
+
+.Result__score {
+  color: black; /* Black for emphasis */
+}

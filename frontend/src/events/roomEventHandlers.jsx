@@ -52,7 +52,11 @@ const roomEventHandlers = {
   HINT_GENERATED: (payload, setGameState) =>
     setGameState((prev) => ({ ...prev, currentWord: payload.hint })),
 
-  GAME_ENDED: (_, setGameState, resetGame) => resetGame(),
+  GAME_ENDED: (payload, setGameState,setPhase) => {
+    setGameState((prev) => ({...prev, result: payload.scores, phase: "GAME_ENDED"})),
+    setPhase(payload.phase)
+    console.log("GAME_END result", payload)
+  },
 };
 
 export default roomEventHandlers;

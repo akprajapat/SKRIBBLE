@@ -11,6 +11,7 @@ import Input from "../../components/Input/Input";
 import PlayerList from "../../components/Playerlist/Playerlist";
 import WordChoice from "../../features/WordChoice/WordChoice";
 import Scoreboard from "../../features/Scoreboard/Scoreboard";
+import Result from "../../features/Result/Result";
 
 import "./Game.css";
 
@@ -60,6 +61,9 @@ export default function Game() {
     }
     if (phase === "SCOREBOARD") {
       return <Scoreboard />;
+    }
+    if (phase === "GAME_ENDED") {
+      return <Result />;
     }
   }
 

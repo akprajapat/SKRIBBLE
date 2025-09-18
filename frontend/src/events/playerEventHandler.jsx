@@ -22,7 +22,7 @@ const playerEventHandlers = {
     timeLeft: payload.timeLeft,
     type: payload.type,
     phase: payload.phase,
-    word: payload.word,
+    currentWord: payload.word,
     started: payload.started,
     players: payload.players,
     drawerId: payload.drawerId,

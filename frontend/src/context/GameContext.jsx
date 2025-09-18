@@ -25,6 +25,7 @@ export function GameProvider({ children }) {
     scores: {},
     started: false,
     wordChoices: [],
+    result: [],
   });
 
   // ---------------- SETTERS ----------------
@@ -113,6 +114,7 @@ export function GameProvider({ children }) {
   const getWordChoices = () => gameState.wordChoices;
   const getScores = () => gameState.scores;
   const getStarted = () => gameState.started;
+  const getResult = () => gameState.result;
   const getPlayerNameById = (id) => {
     const player = gameState.players.find(p => p.id === id);
     return player ? player.name : "Unknown";
@@ -140,6 +142,7 @@ export function GameProvider({ children }) {
         getWordChoices,
         getScores,
         getStarted,
+        getResult,
         getPlayerNameById
       }}
     >

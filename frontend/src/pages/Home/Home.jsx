@@ -4,6 +4,7 @@ import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
 import usernameGenerator from "../../utils/usernameGenerator"
 import "./Home.css";
+import Result from "../../features/Result/Result";
 
 export default function Home() {
   const [usernameInput, setUsernameInput] = useState("");
@@ -72,7 +73,6 @@ export default function Home() {
       <button className="Home__btn" onClick={joinPrivateRoom}>Join Private Room</button>
       </div>
       <button className="Home__btn" onClick={createPrivateRoom}>Create Private Room</button>
-
     </div>
   );
 }
