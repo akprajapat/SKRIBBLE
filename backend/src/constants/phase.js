@@ -1,7 +1,8 @@
-const phase = Object.freeze({
+const PHASE = Object.freeze({
     WORD_SELECTION: 'WORD_SELECTION',
     TURN: 'TURN',
-    SCOREBOARD: 'SCOREBOARD'
+    SCOREBOARD: 'SCOREBOARD',
+    GAME_ENDED: 'GAME_ENDED'
 });
 
-export default phase;
+export default PHASE;

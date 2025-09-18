@@ -19,7 +19,7 @@ import {
 import Timer from "./timer.js";
 import Words from "./words.js";
 import Difficulty from "../constants/difficulty.js";
-import phase from "../constants/phase.js";
+import PHASE from "../constants/phase.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
 import wordList from "../constants/wordList.js";
 import { updateRoomGameEnded } from '../services/roomService/roomService.js';
@@ -146,7 +146,7 @@ export default class Game {
   }
 
   async _createTimerForTurn(){
-    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds, type: phase.TURN });
+    this.timer = new Timer({ roomId: this.roomId, durationSec: this.turnSeconds, type: PHASE.TURN });
     this.timer.start(this.turnSeconds);
     this.words.registerHintCheckpoints(this.timer);
     this.timer.addCheckpoint(0,() => this._endTurn() );
@@ -156,7 +156,7 @@ export default class Game {
     this.timer = new Timer({ 
       roomId: this.roomId,
       durationSec: WORD_SELECTION_TIME,
-      type: phase.WORD_SELECTION
+      type: PHASE.WORD_SELECTION
     });
     this.timer.start();
     this.timer.addCheckpoint(0,() => {
@@ -168,7 +168,7 @@ export default class Game {
     this.timer = new Timer({ 
       roomId: this.roomId,
       durationSec: SHOW_SCOREBOARD_TIME,
-      type: phase.SCOREBOARD 
+      type: PHASE.SCOREBOARD 
     });
     this.timer.start();
     this.timer.addCheckpoint(0,() => {
@@ -177,7 +177,7 @@ export default class Game {
   }
 
   async _sendWordChoices() {
-    this.phase = phase.WORD_SELECTION;
+    this.phase = PHASE.WORD_SELECTION;
     const drawer = this.players[this.drawerIndex];
 
     emitWordChoicesStartedEvent(this.roomId, {
@@ -210,7 +210,7 @@ export default class Game {
 
   async _showScoreboard() {
     this._createTimerForShowScoreboard();
-    this.phase = phase.SCOREBOARD;
+    this.phase = PHASE.SCOREBOARD;
 
     emitScoreboardEvent(this.roomId, { 
       scores: this._createScoresToShow(),
@@ -273,7 +273,7 @@ export default class Game {
   _endGame() {
     this.timer.stop();
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
-    emitGameEndedEvent(this.roomId, { scores });
+    emitGameEndedEvent(this.roomId, { scores, phase:  PHASE.GAME_ENDED});
     this.started = false;
     updateRoomGameEnded(this.roomId);
   }
@@ -307,7 +307,7 @@ export default class Game {
   async _startTurn() {
     const drawer = this.players[this.drawerIndex];
     console.log("Starting turn with word:", this.words.getCurrentWord());
-    this.phase = phase.TURN;
+    this.phase = PHASE.TURN;
 
     emitRoundStartedEvent(this.roomId, {
       phase: this.phase,

@@ -15,7 +15,7 @@ class Player {
   }
 
   updateScore(score) {
-    this.score += score;
+    this.score += score || 0;
     console.log(`Updated player ${this.name} score to ${this.score}`);
     return this.score;
   }

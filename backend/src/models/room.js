@@ -5,7 +5,6 @@ import generateRoomId from "../utils/idGenerator.js";
 import Game from "./game.js";
 import { 
   sendChatEvent,
-  emitGameStateEvent 
 } from "../events/emitEvents.js";
 
 export default class Room {
