@@ -56,7 +56,8 @@ export default class Room {
     sendChatEvent({
       roomId: this.id,
       system: true,
-      message: `${player.name} joined the room`
+      message: `${player.name} joined the room`,
+      color: 'green',
     });
 
     if (this.gameStarted) {
@@ -72,7 +73,8 @@ export default class Room {
     sendChatEvent({
       roomId: this.id,
       system: true,
-      message: `${this.players[idx].name} left the room`
+      message: `${this.players[idx].name} left the room`,
+      color: 'red',
     });
 
     this.game.handlePlayerLeave(socketId);

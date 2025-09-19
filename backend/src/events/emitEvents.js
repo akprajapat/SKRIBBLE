@@ -8,11 +8,11 @@ import eventBus from "./eventBus.js";
  * @param {string} [params.username] - Username of sender (not needed for system messages)
  * @param {string} params.message - The chat message
  */
-export function sendChatEvent({roomId=null, system = false, username = null, message }) {
+export function sendChatEvent({roomId=null, system = false, username = null,color="black", message }) {
   if (system) {
-    eventBus.emit("CHAT",  roomId, { system: true, text: message } );
+    eventBus.emit("CHAT",  roomId, { system: true, text: message, color: color } );
   } else {
-    eventBus.emit("CHAT", roomId,  { system:false, username, text: message } );
+    eventBus.emit("CHAT", roomId,  { system:false, username, text: message, color: color } );
   }
 }
 

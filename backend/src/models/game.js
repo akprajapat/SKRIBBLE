@@ -99,6 +99,7 @@ export default class Game {
     id: player.id,
     name: player.name,
     score: player.score || 0,
+    rank: player.rank
   }))
 
   }
@@ -241,7 +242,8 @@ export default class Game {
         sendChatEvent({ 
           roomId: this.roomId, 
           system: true, 
-          message: ` ${p.name} guessed the word!` 
+          message: ` ${p.name} guessed the word!`,
+          color: 'green'
         });
 
         const aliveGuessers = this.players.filter(pl => pl.id !== drawerId);
@@ -288,7 +290,8 @@ export default class Game {
       sendChatEvent({ 
         roomId: this.roomId, 
         system: true, 
-        message: ` ${p.name} joined the room` 
+        message: ` ${p.name} joined the room`,
+        color: 'green'
       });
     });
     this._startWordSelection();
