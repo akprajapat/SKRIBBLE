@@ -28,7 +28,7 @@
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  background: #f5f5f5; /* Light gray-white for player items */
+  background: linear-gradient(to bottom, white, rgb(174, 222, 236));
   font-size: 14px; /* Smaller font for compactness */
 }
 

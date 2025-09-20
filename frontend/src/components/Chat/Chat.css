@@ -15,19 +15,20 @@
 
 /* Message list */
 .Chat__list {
-  flex: 1; /* Take available space */
-  padding: 10px 12px; /* Comfortable padding */
   overflow-y: auto; /* Scrollable message list */
-  background: #fafafa; /* Light grey for message area */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Message item */
 .Chat__item {
-  margin: 6px 0; /* Spacing between messages */
-  font-size: 13px; /* Compact font size like Skribbl.io */
+  font-size: 16px; /* Compact font size like Skribbl.io */
   display: flex;
   align-items: flex-start; /* Align messages at the top */
   line-height: 1.4; /* Improve readability */
+  border: 1px solid grey;
+  padding: 10px 10px;
+  background: linear-gradient(to bottom, white, rgb(226, 216, 127));
 }
 
 /* Username */
@@ -52,7 +53,7 @@
 .Chat__item--system {
   color: #888; /* Grey for system messages */
   font-style: italic; /* Italic for system messages */
-  font-size: 12px; /* Slightly smaller for system messages */
+  font-size: 14px; /* Slightly smaller for system messages */
 }
 
 .Chat__item--guess {

@@ -19,10 +19,10 @@ export default function Chat() {
     <div className="Chat">
       <div className="Chat__list" ref={listRef}>
         {getMessages().map((m, i) => (
-          <div className="Chat__item" key={i}>
-          <script> console.log(m,i) </script> 
+          
+          <div className="Chat__item" key={i} >
             { m.system ? <></> : <span className="Chat__user">{m.username}:</span>}
-            <span className="Chat__text">{m.text}</span>
+            <span className="Chat__text" style={{ color: m.color || "black" }}>{m.text}</span>
           </div>
         ))}
       </div>

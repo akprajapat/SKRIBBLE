@@ -17,7 +17,7 @@ export default function PlayerList() {
             <span className="PlayerList__score">{player.score}</span>
             <span className="PlayerList__name">{player.name}
               {isCurrentUser && <span className="PlayerList__you">(You)</span>}
-              {isDrawer && <span className="PlayerList__drawer">✏️</span>}
+              {isDrawer && <span className="PlayerList__drawer"> ✏️</span>}
             </span>
           </div>
         );

@@ -6,7 +6,7 @@
   max-width: 930px;
   min-width: 450px;
 
-  background: rgb(204, 216, 219);
+  background: white;
   border: 1px solid blue;
   border-radius: 5px;
 
@@ -31,8 +31,10 @@
   align-items: center;
   justify-content: space-between;
   font-size: 20px; /* Smaller font for compact rows */
-  margin: 10px;
+  padding: 10px 10px;
+  margin: 5px;
   width: 50vw;
+  border-radius: 10px;
 }
 
 .Result__name {
@@ -42,4 +44,75 @@
 
 .Result__score {
   color: black; /* Black for emphasis */
+}
+
+@keyframes shine {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 400% 0;
+  }
+}
+
+@-webkit-keyframes shine {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 400% 0;
+  }
+}
+
+.shiny {
+  background-size: 200% 100% !important; /* Ensure background-size isn't overridden */
+  animation: shine 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* GOLD medal */
+.gold-bg {
+  background: linear-gradient(
+    45deg,
+    #FFD700 0%,   /* pure gold */
+    #FFC107 25%,  /* golden amber */
+    #FFF8DC 50%,  /* cornsilk highlight */
+    #FFC107 75%, 
+    #FFD700 100%
+  );
+}
+
+/* SILVER medal */
+.silver-bg {
+  background: linear-gradient(
+    45deg,
+    #C0C0C0 0%,   /* silver */
+    #D9D9D9 25%,  /* light silver */
+    #FFFFFF 50%,  /* white shimmer */
+    #D9D9D9 75%,
+    #C0C0C0 100%
+  );
+}
+
+/* BRONZE medal */
+.bronze-bg {
+  background: linear-gradient(
+    45deg,
+    #CD7F32 0%,   /* bronze */
+    #D28A47 25%,  /* lighter bronze */
+    #FFDAB9 50%,  /* peach highlight */
+    #D28A47 75%,
+    #CD7F32 100%
+  );
+}
+
+/* SKYBLUE (for non-medal ranks) */
+.other-bg {
+  background: linear-gradient(
+    45deg,
+    #87CEEB 0%,   /* light skyblue */
+    #B0E0E6 25%,  /* powder blue */
+    #E0FFFF 50%,  /* light cyan */
+    #B0E0E6 75%,
+    #87CEEB 100%
+  );
 }
