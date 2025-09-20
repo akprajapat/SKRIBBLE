@@ -6,7 +6,7 @@ dotenv.config();
 
 const app = express();
 const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
-
+console.log("allowed orgins for http server", allowedOrigins)
 app.use(
   cors({
     origin: allowedOrigins,

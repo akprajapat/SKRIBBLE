@@ -7,6 +7,7 @@ import { leaveRoom } from './services/roomService/roomService.js';
 export default function attachSocket(server) {
   const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || ["http://localhost:3000"];
 
+  console.log("allowed_origins for socket ", allowedOrigins);
   const io = new Server(server, {
     cors: {
       origin: allowedOrigins,
