@@ -1,10 +1,19 @@
-import express from 'express';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || [];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true, // allow cookies/headers
+  })
+);
+
 app.use(express.json());
 
-
 export default app;
-

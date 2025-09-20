@@ -5,10 +5,14 @@ import handleEventBus from './handlers/handleEventBus.js';
 import { leaveRoom } from './services/roomService/roomService.js';
 
 export default function attachSocket(server) {
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(",") || ["http://localhost:3000"];
+
   const io = new Server(server, {
     cors: {
-      origin: '*',
-    }
+      origin: allowedOrigins,
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
 
   handleEventBus(io);

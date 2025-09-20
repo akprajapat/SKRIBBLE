@@ -284,6 +284,7 @@ export default class Game {
     this.players = players;
     this.drawerIndex = players.length - 1;
     this.started = true;
+    const wordList = await generateWordList(this.rounds,this.maxPlayers,this.difficulty)
     this.words = new Words(this.roomId, wordList);
     emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
     players.forEach(p => {
