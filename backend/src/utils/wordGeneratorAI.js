@@ -40,7 +40,10 @@ Return the words as a comma-separated list without numbering.
     );
 
     const text = res.data.choices[0].message.content;
-    return text.split(",").map(w => w.trim()).filter(Boolean);
+    const words =  text.split(",").map(w => w.trim()).filter(Boolean);
+    console.log("Word List Generated", words);
+    return words;
+
   } catch (err) {
     console.error("Error generating words with Perplexity:", err.response?.data || err.message);
     return wordList;
