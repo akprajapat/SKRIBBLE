@@ -4,6 +4,9 @@ const URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:4000";
 
 console.log("Connecting to Socket.IO server at:", URL);
 
-const socket = io(URL);
+const socket = io(URL, {
+  transports: ["websocket", "polling"],
+  withCredentials: true
+});
 
 export default socket;
