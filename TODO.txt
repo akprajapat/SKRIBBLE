@@ -1,0 +1,36 @@
+TODO List for Skribble Game
+
+Backend Tasks:
+-------------
+1. Implement rate limiting for API endpoints
+2. 
+3. Add persistent storage for game statistics
+4. Implement custom word lists feature
+5. Add unit tests for game events
+6. Optimize word generation with caching
+7. Add logging system for debugging
+8. Implement reconnection handling
+9. Add user authentication system
+
+Frontend Tasks:
+--------------
+1. Add mobile-responsive design
+2. Implement undo/redo for canvas
+3. Add color picker for drawing
+4. Implement brush size selector
+5. Add sound effects
+6. Add animations for scores
+7. Implement dark mode
+8. Add user profile page
+9. Add game history view
+
+General Tasks:
+-------------
+1. Add CI/CD pipeline
+2. Write API documentation
+3. Implement error tracking
+4. Add performance monitoring
+5. Create user guide
+6. Add deployment scripts
+7. Setup staging environment
+8. Add integration tests
