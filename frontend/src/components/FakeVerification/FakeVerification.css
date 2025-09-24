@@ -1,0 +1,42 @@
+.container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.checkbox-input {
+  transform: scale(1.5);
+  margin-right: 1rem;
+}
+
+.checkbox-label {
+  font-size: 1.5rem;
+}
+
+.checkbox-label input {
+  margin-right: 1rem;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem;
+  gap: 1rem;
+}
+
+.loader {
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(12, 163, 12);
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 4s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}
