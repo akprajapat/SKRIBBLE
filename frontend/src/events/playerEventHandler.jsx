@@ -5,7 +5,6 @@ const playerEventHandlers = {
     setGameState((prev) => ({ 
     ...prev,
     wordChoices: payload.wordChoices,
-    phase: payload.phase
     }));
   },
 
@@ -21,7 +20,6 @@ const playerEventHandlers = {
     round: payload.round,
     timeLeft: payload.timeLeft,
     type: payload.type,
-    phase: payload.phase,
     currentWord: payload.word,
     started: payload.started,
     players: payload.players,

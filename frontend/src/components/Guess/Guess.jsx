@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import "./Input.css";
+import "./Guess.css";
 import { useGame } from "../../context/GameContext";
 import { guessWordEvent } from "../../services/emitGameEvents";
 
-export default function Input() {
+export default function Guess() {
   const { getRoomId, getPlayerId } = useGame();
   const [msg, setMsg] = useState("");
 
@@ -16,16 +16,16 @@ export default function Input() {
   };
 
   return (
-    <div className="Input">
-      <form className="Input__form" onSubmit={onSend}>
+    <div>
+      <form className="Guess__form" onSubmit={onSend}>
         <input
-          className="Input__field"
+          className="Guess__field"
           placeholder="Type to chat / guess..."
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
         />
-        <span className="Input__length">{msg.length}</span>
-        <button className="Input__send" type="submit">Send</button>
+        <span className="Guess__length">{msg.length}</span>
+        <button className="Guess__send" type="submit">Send</button>
       </form>
     </div>
   );

@@ -6,12 +6,13 @@ import { useParams, useNavigate, useLocation,  useNavigationType } from "react-r
 import Topbar from "../../components/Topbar/Topbar";
 import Canvas from "../../features/Canvas/Canvas";
 import Chat from "../../components/Chat/Chat";
-import Input from "../../components/Input/Input";
+import Guess from "../../components/Guess/Guess";
 
 import PlayerList from "../../components/Playerlist/Playerlist";
 import WordChoice from "../../features/WordChoice/WordChoice";
 import Scoreboard from "../../features/Scoreboard/Scoreboard";
 import Result from "../../features/Result/Result";
+import Waiting from "../../features/Waiting/Waiting";
 
 import "./Game.css";
 
@@ -21,9 +22,10 @@ export default function Game() {
     getRoomId,
     getDrawerId,
     getPlayerId,
-    getStarted,
     resetGame,
+    getStarted,
     phase,
+    gameState,
   } = useGame();
 
   const { roomId } = useParams();
@@ -53,7 +55,10 @@ export default function Game() {
   isMounted.current++;
 
   function getScreen() {
-    if (phase === null || phase === "TURN") {
+    if (phase === null) {
+      return <Waiting />;
+    }
+    if (phase === "TURN") {
       return <Canvas isDrawer={isDrawer} roomId={roomId}/>;
     }
     if (phase === "WORD_SELECTION") {
@@ -78,7 +83,7 @@ export default function Game() {
         <PlayerList />
         <Chat />
       </div>
-      <Input />
+      <Guess />
     </div>
   );
 }
