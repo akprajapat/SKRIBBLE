@@ -1,7 +1,7 @@
 import Difficulty from "./difficulty.js"
 import RoomType from "./roomType.js";
 
-const DEFAULTS = {
+const PUBLIC_ROOM = {
   type: RoomType.PUBLIC,
   maxPlayers: 8,
   totalRounds: 3,
@@ -9,4 +9,4 @@ const DEFAULTS = {
   difficulty: Difficulty.MEDIUM,
 };
 
-export default DEFAULTS;
+export default PUBLIC_ROOM;
