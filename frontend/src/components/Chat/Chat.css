@@ -1,69 +1,46 @@
-/* Container */
+
 .Chat {
-  border: 1px solid blue; /* Lighter border for a softer look */
-  background: #ffffff; /* White background like Skribbl.io */
+  border: 1px solid blue;
+  background: #fff;
   display: flex;
   flex-direction: column;
   height: 40vh; 
   width: 60vw;
   min-width: 250px;
   max-width: 630px; 
-  font-family: 'Permanent Marker', 'Comic Sans MS', 'Roboto', sans-serif; /* Playful Skribbl.io font */
-  position: relative; /* Relative positioning for child elements */
+  font-family: 'Permanent Marker', 'Comic Sans MS', 'Roboto', sans-serif;
+  position: relative;
   box-sizing: border-box;
 }
 
-/* Message list */
 .Chat__list {
-  overflow-y: auto; /* Scrollable message list */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
-/* Message item */
 .Chat__item {
-  font-size: 16px; /* Compact font size like Skribbl.io */
+  font-size: 16px;
   display: flex;
-  align-items: flex-start; /* Align messages at the top */
-  line-height: 1.4; /* Improve readability */
+  align-items: flex-start;
+  line-height: 1.4;
   border: 1px solid grey;
-  padding: 10px 10px;
+  padding: 10px;
   background: linear-gradient(to bottom, white, rgb(226, 216, 127));
 }
 
-/* Username */
 .Chat__user {
-  font-weight: 700; /* Bolder usernames */
-  margin-right: 8px; /* Space after username */
-  color: #222; /* Dark color for contrast */
-  white-space: nowrap; /* Prevent wrapping */
-  max-width: 120px; /* Limit username width */
+  font-weight: 700;
+  margin-right: 8px;
+  color: #222;
+  white-space: nowrap;
+  max-width: 120px;
   overflow: hidden;
-  text-overflow: ellipsis; /* Truncate long usernames */
+  text-overflow: ellipsis;
 }
 
-/* Message text */
 .Chat__text {
-  color: #333; /* Dark text for messages */
-  word-break: break-word; /* Break long messages */
-  flex: 1; /* Allow text to take remaining space */
+  color: #333;
+  overflow-wrap: anywhere;
+  flex: 1;
 }
-
-/* Message type styles */
-.Chat__item--system {
-  color: #888; /* Grey for system messages */
-  font-style: italic; /* Italic for system messages */
-  font-size: 14px; /* Slightly smaller for system messages */
-}
-
-.Chat__item--guess {
-  color: #28a745; /* Green for correct guesses */
-  font-weight: 600; /* Emphasize correct guesses */
-}
-
-.Chat__item--drawer {
-  color: #ff9900; /* Bright orange for drawer’s messages, matching Skribbl.io */
-  font-weight: 600; /* Emphasize drawer messages */
-}
-
-/*

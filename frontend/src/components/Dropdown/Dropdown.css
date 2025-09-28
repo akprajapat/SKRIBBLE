@@ -59,7 +59,7 @@
 /* Dropdown Arrow */
 .dropdown-toggle .arrow {
   position: absolute;
-  right: 0px;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   font-size: 12px;

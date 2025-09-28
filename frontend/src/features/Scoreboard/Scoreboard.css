@@ -5,11 +5,9 @@
   width: 100vw;
   max-width: 930px;
   min-width: 450px;
-
   background: rgb(204, 216, 219);
   border: 1px solid blue;
   border-radius: 5px;
-
   display: flex;
   flex-direction: column;
   align-items: center;

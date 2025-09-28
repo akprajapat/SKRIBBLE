@@ -69,10 +69,12 @@
   justify-content: space-between;
   gap: 20px;
 }
+
 .palette{
   display: flex;
   gap: 10px;
 }
+
 .current-tool{
   margin-right: auto;
   font-size: 20px;
@@ -103,7 +105,6 @@
   width: 100vw;
   max-width: 930px;
   min-width: 450px;
-
   background: #fff;
   border: 1px solid blue;
   border-radius: 5px;
