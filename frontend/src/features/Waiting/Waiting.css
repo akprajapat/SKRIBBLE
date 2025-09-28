@@ -1,0 +1,26 @@
+.Waiting {
+  height: 50vh;
+  max-height: 600px;
+  min-height: 300px;
+  width: 100vw;
+  max-width: 930px;
+  min-width: 450px;
+  background: rgb(204, 216, 219);
+  border: 1px solid blue;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.Waiting__title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  color: blue;
+  font-size: 30px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding-top: 20px;
+}
