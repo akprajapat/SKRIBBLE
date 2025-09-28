@@ -27,6 +27,7 @@ export default function WordChoice() {
     );
   };
   const wordChoices = getWordChoices();
+  setSelectedWord(wordChoices[0]);
   return (
     <div className="WordChoice">
       <h3 className="WordChoice__title">Choose a word</h3>
