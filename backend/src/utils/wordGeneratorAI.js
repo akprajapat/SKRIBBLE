@@ -10,27 +10,37 @@ if (!PERPLEXITY_API_KEY) {
   throw new Error("Missing PERPLEXITY_API_KEY in .env");
 }
 
+/**
+ * Generates a list of words for a drawing game.
+ * @param {number} rounds - Number of rounds in the game.
+ * @param {number} maxPlayers - Maximum number of players.
+ * @param {string} difficulty - Difficulty level (e.g., easy, medium, hard).
+ * @param {string|null} theme - Optional theme for the words.
+ * @returns {Promise<string[]>} - Array of words.
+ */
 async function generateWordList(rounds, maxPlayers, difficulty, theme = null) {
   const totalWords = rounds * maxPlayers * 3;
 
-  const prompt = `
-Generate ${totalWords} single-word nouns for a drawing game like Scribble.
-Words should be ${difficulty} difficulty, family-friendly, and easy to understand.
-${theme ? `Theme: ${theme}.` : ""}
-Return the words as a comma-separated list without numbering.
-`;
+  // Construct the user prompt
+  const prompt = `Generate exactly ${totalWords} single-word nouns suitable for a drawing game like Scribble.
+Words should be ${difficulty} difficulty, family-friendly, easy to understand, and playable in a drawing game.
+Each word must be less than 10 characters.${theme ? `Theme: ${theme}.` : ""}
+Return ONLY the words as a comma-separated list, without numbering, quotes, or any extra text.`;
+
+  // Prepare the JSON payload
+  const payload = {
+    model: "sonar-pro",
+    messages: [
+      { role: "user", content: prompt }
+    ],
+    max_tokens: Math.max(200, totalWords * 5), // approximate tokens per word
+    temperature: 0.8
+  };
 
   try {
     const res = await axios.post(
       "https://api.perplexity.ai/chat/completions",
-      {
-        model: "sonar-pro",   // or another model available to you
-        messages: [
-          { role: "user", content: prompt }
-        ],
-        max_tokens: 200,
-        temperature: 0.8
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
@@ -40,13 +50,17 @@ Return the words as a comma-separated list without numbering.
     );
 
     const text = res.data.choices[0].message.content;
-    const words =  text.split(",").map(w => w.trim()).filter(Boolean);
-    console.log("Word List Generated", words);
+    const words = text
+      .split(",")
+      .map(w => w.trim())
+      .filter(Boolean);
+
+    console.log("Word List Generated:", words);
     return words;
 
   } catch (err) {
     console.error("Error generating words with Perplexity:", err.response?.data || err.message);
-    return wordList;
+    return wordList; // fallback to default word list
   }
 }
 

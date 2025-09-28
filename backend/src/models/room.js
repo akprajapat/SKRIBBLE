@@ -1,27 +1,29 @@
 import RoomType  from "../constants/roomType.js";
-import DEFAULTS from "../constants/publicRoom.js";
+import PUBLIC_ROOM from "../constants/publicRoom.js";
 import Player from "./player.js";
 import generateRoomId from "../utils/idGenerator.js";
 import Game from "./game.js";
+
 import { 
   sendChatEvent,
 } from "../events/emitEvents.js";
 
+
 export default class Room {
-  constructor(DEFAULTS = {}) {
+  constructor(PUBLIC_ROOM = {}) {
     this.id = generateRoomId();
-    this.type = DEFAULTS.type;
-    this.maxPlayers = DEFAULTS.maxPlayers;
+    this.type = PUBLIC_ROOM.type;
+    this.maxPlayers = PUBLIC_ROOM.maxPlayers;
     this.players = [];
     this._nextPlayerId = 1;
     this.hostId = null;
     this.gameStarted = false;
     this.game = new Game({
       roomId: this.id,
-      maxPlayers: DEFAULTS.maxPlayers,
-      totalRounds: DEFAULTS.totalRounds,
-      turnSeconds: DEFAULTS.turnSeconds,
-      difficulty: DEFAULTS.difficulty
+      maxPlayers: PUBLIC_ROOM.maxPlayers,
+      totalRounds: PUBLIC_ROOM.totalRounds,
+      turnSeconds: PUBLIC_ROOM.turnSeconds,
+      difficulty: PUBLIC_ROOM.difficulty
     });
   }
 
@@ -51,7 +53,9 @@ export default class Room {
     const player = new Player({ id: this._nextPlayerId++, name, socket });
     this.players.push(player);
 
-    if (this.players.length === 1) this.hostId = player.socket;
+    if (this.players.length === 1) {
+      this.hostId = player.socket;
+    }
 
     sendChatEvent({
       roomId: this.id,

@@ -21,7 +21,6 @@ import Words from "./words.js";
 import Difficulty from "../constants/difficulty.js";
 import PHASE from "../constants/phase.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
-import wordList from "../constants/wordList.js";
 import { updateRoomGameEnded } from '../services/roomService/roomService.js';
 
 /**
@@ -284,9 +283,9 @@ export default class Game {
     this.players = players;
     this.drawerIndex = players.length - 1;
     this.started = true;
-    const wordList = await generateWordList(this.rounds,this.maxPlayers,this.difficulty)
-    this.words = new Words(this.roomId, wordList);
     emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
+    const wordList = await generateWordList(this.totalRounds,this.maxPlayers,this.difficulty)
+    this.words = new Words(this.roomId, wordList);
     players.forEach(p => {
       sendChatEvent({ 
         roomId: this.roomId, 
