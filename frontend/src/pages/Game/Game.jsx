@@ -75,7 +75,7 @@ export default function Game() {
 
   return (
     <div className="Game">
-      <Topbar />
+      <Topbar isDrawer={isDrawer} />
       <div className="Screen">
         {getScreen()}
       </div>

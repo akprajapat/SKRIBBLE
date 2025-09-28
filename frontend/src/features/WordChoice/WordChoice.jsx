@@ -4,7 +4,7 @@ import { useGame } from "../../context/GameContext";
 
 export default function WordChoice() {
   const socket = useSocket();
-  const { getWordChoices, getRoomId, getPlayerId, getDrawerId, getPlayerNameById } = useGame();
+  const { getWordChoices, getRoomId, getPlayerId, getDrawerId, getPlayerNameById, setSelectedWord } = useGame();
   const isDrawer = getDrawerId() === getPlayerId();
   console.log(isDrawer,getDrawerId(),getPlayerNameById(getDrawerId()))
 
@@ -17,6 +17,7 @@ export default function WordChoice() {
   }
     
   const select = (word) => {
+    setSelectedWord(word);
     socket.emit(
       "SELECTED_WORD",
       { roomId: getRoomId(), playerId: getPlayerId(), word },

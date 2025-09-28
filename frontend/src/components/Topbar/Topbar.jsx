@@ -2,9 +2,10 @@ import "./Topbar.css";
 import Timer from "../Timer/Timer";
 import { useGame } from "../../context/GameContext";
 
-export default function Topbar() {
-  const { getRound, getTotalRounds, getCurrentWord } = useGame();
-  const word = getCurrentWord();
+export default function Topbar({isDrawer}) {
+  const { getRound, getTotalRounds, getCurrentWord, getSelectedWord } = useGame(); 
+  const word = isDrawer ? getSelectedWord() : getCurrentWord();
+  console.log("Topbar rendered", isDrawer, getSelectedWord(), getCurrentWord(),word);
 
   return (
     <header className="Topbar">

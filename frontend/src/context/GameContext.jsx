@@ -19,6 +19,7 @@ export function GameProvider({ children }) {
     messages: [],
     drawerId: null,
     currentWord: "",
+    selectedWord: "",
     round: 1,
     totalRounds: 3,
     timer: 60,
@@ -43,6 +44,10 @@ export function GameProvider({ children }) {
     setGameState((prev) => ({ ...prev, username }));
   };
 
+  const setSelectedWord = (word) => {
+    setGameState((prev) => ({ ...prev, selectedWord: word }));
+  };
+
   const resetGame = () => {
     setGameState({
       roomId: null,
@@ -52,6 +57,7 @@ export function GameProvider({ children }) {
       messages: [],
       drawerId: null,
       currentWord: "",
+      selectedWord: "",
       round: 1,
       totalRounds: 3,
       timeLeft: 60,
@@ -115,6 +121,7 @@ export function GameProvider({ children }) {
   const getScores = () => gameState.scores;
   const getStarted = () => gameState.started;
   const getResult = () => gameState.result;
+  const getSelectedWord = () => gameState.selectedWord;
   const getPlayerNameById = (id) => {
     const player = gameState.players.find(p => p.id === id);
     return player ? player.name : "Unknown";
@@ -127,6 +134,7 @@ export function GameProvider({ children }) {
         phase,
         setRoomInfo,
         setUsername,
+        setSelectedWord,
         resetGame,
 
         getRoomId,
@@ -143,6 +151,7 @@ export function GameProvider({ children }) {
         getScores,
         getStarted,
         getResult,
+        getSelectedWord,
         getPlayerNameById
       }}
     >
