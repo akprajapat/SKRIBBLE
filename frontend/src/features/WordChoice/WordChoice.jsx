@@ -1,6 +1,7 @@
 import "./WordChoice.css";
 import { useSocket } from "../../context/SocketContext";
 import { useGame } from "../../context/GameContext";
+import { useEffect } from "react";
 
 export default function WordChoice() {
   const socket = useSocket();
@@ -27,7 +28,11 @@ export default function WordChoice() {
     );
   };
   const wordChoices = getWordChoices();
-  setSelectedWord(wordChoices[0]);
+
+  useEffect(() => {
+    setSelectedWord(wordChoices[0]);
+  }, []);
+  
   return (
     <div className="WordChoice">
       <h3 className="WordChoice__title">Choose a word</h3>

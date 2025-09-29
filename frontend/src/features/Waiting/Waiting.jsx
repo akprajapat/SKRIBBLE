@@ -4,12 +4,11 @@ import { useEffect } from "react";
 
 export default function Waiting() {
   const { getStarted } = useGame();
+  let gameStarted = getStarted();
 
   useEffect(() => {
-    console.log("Rendering Waiting component, game started:", getStarted());
+    gameStarted = getStarted();
   }, [getStarted]);
-
-  const gameStarted = getStarted();
 
   return (
     <div className="Waiting">

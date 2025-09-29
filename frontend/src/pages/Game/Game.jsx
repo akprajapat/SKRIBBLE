@@ -55,6 +55,7 @@ export default function Game() {
   isMounted.current++;
 
   function getScreen() {
+    console.log("selecting screen for phase:", phase);
     if (phase === null) {
       return <Waiting />;
     }

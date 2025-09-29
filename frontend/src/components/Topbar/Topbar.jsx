@@ -4,7 +4,7 @@ import { useGame } from "../../context/GameContext";
 
 export default function Topbar({isDrawer}) {
   const { getRound, getTotalRounds, getCurrentWord, getSelectedWord } = useGame(); 
-  const word = isDrawer ? getSelectedWord() : getCurrentWord();
+  const word = (isDrawer ? getSelectedWord() : getCurrentWord()) || "";
   console.log("Topbar rendered", isDrawer, getSelectedWord(), getCurrentWord(),word);
 
   return (
