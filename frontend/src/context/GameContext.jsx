@@ -27,6 +27,7 @@ export function GameProvider({ children }) {
     started: false,
     wordChoices: [],
     result: [],
+    image: null,
   });
 
   // ---------------- SETTERS ----------------
@@ -62,6 +63,7 @@ export function GameProvider({ children }) {
       totalRounds: 3,
       timeLeft: 60,
       wordChoices: [],
+      image: null,
     });
   };
 
@@ -96,7 +98,7 @@ export function GameProvider({ children }) {
     });
 
     playerEvents.forEach(([event, handler]) => {
-      gameEventBus.on(event, (payload) => handler(payload, setGameState));
+      gameEventBus.on(event, (payload) => handler(payload, setGameState, setPhase, resetGame));
     });
 
     return () => {
@@ -122,6 +124,7 @@ export function GameProvider({ children }) {
   const getStarted = () => gameState.started;
   const getResult = () => gameState.result;
   const getSelectedWord = () => gameState.selectedWord;
+  const getImage = () => gameState.image;
   const getPlayerNameById = (id) => {
     const player = gameState.players.find(p => p.id === id);
     return player ? player.name : "Unknown";
@@ -152,6 +155,7 @@ export function GameProvider({ children }) {
         getStarted,
         getResult,
         getSelectedWord,
+        getImage,
         getPlayerNameById
       }}
     >

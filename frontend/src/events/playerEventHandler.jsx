@@ -12,7 +12,7 @@ const playerEventHandlers = {
     // optional: handle correct guess
   },
 
-  GAME_STATE: (payload,setGameState) => {
+  GAME_STATE: (payload,setGameState, setPhase) => {
     console.log("GAME_STATE event received:", payload);
     setGameState((prev) => ({ 
     ...prev,
@@ -24,7 +24,9 @@ const playerEventHandlers = {
     started: payload.started,
     players: payload.players,
     drawerId: payload.drawerId,
+    image: payload.image,
     }));
+    setPhase(payload.phase);
   }
 };
 
