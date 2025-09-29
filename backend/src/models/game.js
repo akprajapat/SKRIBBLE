@@ -258,6 +258,14 @@ export default class Game {
   }
 
   _endTurn() {
+    sendChatEvent({ 
+      roomId: this.roomId, 
+      system: true, 
+      message: ` The word was: ${this.words.getCurrentWord()}`,
+      color: 'blue'
+    });
+
+    // Calculate drawer score
     if (!this.drawerLeft) {
       this.scores[this.players[this.drawerIndex].id] = this._calculateScoreForDrawer();
     }
@@ -272,6 +280,12 @@ export default class Game {
   }
 
   _endGame() {
+    sendChatEvent({ 
+      roomId: this.roomId, 
+      system: true, 
+      message: ` The Game has ended!`,
+      color: 'blue'
+    });
     this.timer.stop();
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
     emitGameEndedEvent(this.roomId, { scores, phase:  PHASE.GAME_ENDED});
@@ -312,6 +326,12 @@ export default class Game {
     console.log("Starting turn with word:", this.words.getCurrentWord());
     this.phase = PHASE.TURN;
 
+    sendChatEvent({ 
+      roomId: this.roomId, 
+      system: true, 
+      message: ` ${drawer.name} is drawing now!`,
+      color: 'blue'
+    });
     emitRoundStartedEvent(this.roomId, {
       phase: this.phase,
       round: this.round,
