@@ -152,6 +152,17 @@ export default class Game {
     this.timer.addCheckpoint(0,() => this._endTurn() );
   }
 
+  async _createTimerForRestart(){
+    this.timer = new Timer({ 
+      roomId: this.roomId,
+      durationSec: 5,
+    });
+    this.timer.start();
+    this.timer.addCheckpoint(0,() => {
+      this._restartGame();
+    });
+  }
+
   async _createTimerForWordSelection(){
     this.timer = new Timer({ 
       roomId: this.roomId,
@@ -286,11 +297,19 @@ export default class Game {
       message: ` The Game has ended!`,
       color: 'blue'
     });
+
     this.timer.stop();
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
     emitGameEndedEvent(this.roomId, { scores, phase:  PHASE.GAME_ENDED});
     this.started = false;
     updateRoomGameEnded(this.roomId);
+    this._createTimerForRestart();
+  }
+
+  _restartGame() {
+    this.resetGameState();
+    if (this.players.length < 2) return;
+    this.start(this.players);
   }
 
   async start(players) {
