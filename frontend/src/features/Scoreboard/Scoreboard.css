@@ -31,6 +31,7 @@
   font-size: 20px; /* Smaller font for compact rows */
   margin: 10px;
   width: 50vw;
+  max-width: 800px;
 }
 
 .Scoreboard__name {
