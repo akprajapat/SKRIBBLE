@@ -14,6 +14,7 @@ const roomEventHandlers = {
       round: payload.round,
       drawerId: payload.drawerId,
       players: payload.players,
+      image: null,
     }));
     setPhase(payload.phase);
   },

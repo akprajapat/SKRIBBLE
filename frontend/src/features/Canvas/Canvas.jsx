@@ -1,7 +1,8 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, use } from "react";
 import "./Canvas.css";
 import { useSocket } from "../../context/SocketContext";
 import { onFillEvent, clearCanvasEvent, drawStrokeEvent } from "../../services/emitGameEvents";
+import { useGame } from "../../context/GameContext";
 
 export default function Canvas({isDrawer,roomId}) {
   const canvasRef = useRef(null);
@@ -26,7 +27,7 @@ export default function Canvas({isDrawer,roomId}) {
   ];
 
   const socket = useSocket();
-  // isDrawer = true;
+  const { getImage } = useGame();
 
   // ---------- Init ----------
   useEffect(() => {
@@ -279,6 +280,7 @@ export default function Canvas({isDrawer,roomId}) {
     if (!socket || !ctx) return;
 
     const onDraw = ({ x0, y0, x1, y1, color, lineWidth, tool }) => {
+      console.log("event received: DRAW", { x0, y0, x1, y1, color, lineWidth, tool });
       ctx.beginPath();
       if (tool === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
@@ -293,13 +295,18 @@ export default function Canvas({isDrawer,roomId}) {
       ctx.stroke();
     };
 
-    const onClear = () => clearLocal();
+    const onClear = () => {
+      console.log("event received: CLEAR_CANVAS");
+      clearLocal();
+    };
 
     const onFill = ({ x, y, color, tolerance = 25 }) => {
+      console.log("event received: ON_FILL", { x, y, color, tolerance });
       floodFillLocal(x, y, color, tolerance);
     };
 
     const onCanvasSync = ({ image }) => {
+      console.log("event received: CANVAS_SYNC");
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -308,26 +315,28 @@ export default function Canvas({isDrawer,roomId}) {
       img.src = image;
     };
 
-    const onGetCanvas = ({requestId}) => {
-      const image = ctx.canvas.toDataURL(); // Or from context
-      socket.emit('CANVAS_IMAGE', { roomId, requestId, image });
-    }
+    const onGetCanvas = ({ requestId }) => {
+      console.log("event received: GET_CANVAS", { requestId });
+      const image = ctx.canvas.toDataURL();
+      socket.emit("CANVAS_IMAGE", { roomId, requestId, image });
+    };
 
-
-    socket.on("DRAW", (payload) => {console.log("event recieved at on Draw", payload); onDraw(payload)});
-    socket.on("CLEAR_CANVAS", () => onClear());
-    socket.on("ON_FILL", (fillData) => {console.log("event recieved at on Fill", fillData); onFill(fillData)});
-    socket.on("CANVAS_SYNC", (syncData) => {console.log("event recieved at on Canvas Sync", syncData); onCanvasSync(syncData)});
-    socket.on('GET_CANVAS', ({ requestId }) => {console.log("GET_CANVAS event recieved ", requestId); onGetCanvas({ requestId });});
-    socket.on("GAME_STATE", (payload) => {
-      console.log("CANVAS GAME_STATE EBENT",payload);
+    const onGameState = (payload) => {
+      console.log("event received: GAME_STATE", payload);
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
       };
       img.src = payload.image;
-    });
+    };
+
+    socket.on("DRAW", onDraw);
+    socket.on("CLEAR_CANVAS", onClear);
+    socket.on("ON_FILL", onFill);
+    socket.on("CANVAS_SYNC", onCanvasSync);
+    socket.on("GET_CANVAS", onGetCanvas);
+    socket.on("GAME_STATE", onGameState);
 
     return () => {
       socket.off("DRAW", onDraw);
@@ -335,8 +344,29 @@ export default function Canvas({isDrawer,roomId}) {
       socket.off("ON_FILL", onFill);
       socket.off("CANVAS_SYNC", onCanvasSync);
       socket.off("GET_CANVAS", onGetCanvas);
+      socket.off("GAME_STATE", onGameState);
     };
   }, [socket, ctx]);
+
+  useEffect(() => {
+    if (!ctx) return;
+
+    console.log("First check if canvas image is there");
+    const canvasImage = getImage();
+
+    if (!canvasImage) {
+      console.log("No canvas image available yet");
+      return;
+    }
+
+    console.log("Loading canvas image from game state");
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    };
+    img.src = canvasImage;
+  }, [ctx]);
 
   return (
     <div className="canvas-wrapper">
