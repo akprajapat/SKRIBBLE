@@ -22,10 +22,19 @@ async function generateWordList(rounds, maxPlayers, difficulty, theme = null) {
   const totalWords = rounds * maxPlayers * 3;
 
   // Construct the user prompt
-  const prompt = `Generate exactly ${totalWords} single-word nouns suitable for a drawing game like Scribble.
-Words should be ${difficulty} difficulty, family-friendly, easy to understand, and playable in a drawing game.
-Each word must be less than 10 characters.${theme ? `Theme: ${theme}.` : ""}
-Return ONLY the words as a comma-separated list, without numbering, quotes, or any extra text.`;
+const prompt = `
+Generate exactly ${totalWords} unique single-word nouns suitable for a drawing game like Scribble.
+Words must meet the following criteria:
+- ${difficulty} difficulty
+- Family-friendly
+- Easy to understand
+- Playable in a drawing game
+- Each word must be less than 10 characters
+${theme ? `- Theme: ${theme}.` : ""}
+Return ONLY the words as a **comma-separated list**, with no numbering, quotes, or extra text.
+Ensure that all words are unique, with no repetitions.
+`;
+
 
   // Prepare the JSON payload
   const payload = {
