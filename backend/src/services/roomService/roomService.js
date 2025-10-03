@@ -46,10 +46,10 @@ export function hasRoom(roomId) {
   return rooms.has(roomId);
 }
 
-export function updateRoomGameEnded(roomId) {
+export function updateRoomGameStatus(roomId, status) {
   const room = rooms.get(roomId);
   if (room) {
-    room.gameEnded();
+    room.updateGameStatus(status);
   }
 }
 

@@ -92,8 +92,8 @@ export default class Room {
     return true;
   }
 
-  gameEnded() {
-    this.gameStarted = false;
+  updateGameStatus(status) {
+    this.gameStarted = status;
   }
 
   startGame(playerId=null) {

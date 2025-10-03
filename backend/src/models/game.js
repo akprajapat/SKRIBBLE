@@ -21,7 +21,7 @@ import Words from "./words.js";
 import Difficulty from "../constants/difficulty.js";
 import PHASE from "../constants/phase.js";
 import generateWordList from "../utils/wordGeneratorAI.js";
-import { updateRoomGameEnded } from '../services/roomService/roomService.js';
+import { updateRoomGameStatus } from '../services/roomService/roomService.js';
 
 /**
  * Emits (to eventBus):
@@ -82,9 +82,9 @@ export default class Game {
   }
 
   resetGameState() {
+    this.round = 1;
     this.started = false;
     this.phase = null;
-    this.round = 1;
     this.drawerIndex = 0;
     this.scores.clear();
     this.guessedIds.clear();
@@ -156,6 +156,7 @@ export default class Game {
     this.timer = new Timer({ 
       roomId: this.roomId,
       durationSec: 5,
+      type: "RESTART_GAME"
     });
     this.timer.start();
     this.timer.addCheckpoint(0,() => {
@@ -302,7 +303,7 @@ export default class Game {
     const scores = this.players.map(p => ({ id: p.id, name: p.name, score: p.score }));
     emitGameEndedEvent(this.roomId, { scores, phase:  PHASE.GAME_ENDED});
     this.started = false;
-    updateRoomGameEnded(this.roomId);
+    updateRoomGameStatus(this.roomId, false);
     this._createTimerForRestart();
   }
 
@@ -313,12 +314,11 @@ export default class Game {
   }
 
   async start(players) {
+    this.started = true;
+    updateRoomGameStatus(this.roomId, true);
     this.players = players;
     this.drawerIndex = players.length - 1;
-    this.started = true;
     emitGameStartedEvent(this.roomId, { roomId: this.roomId, players: this.players });
-    const wordList = await generateWordList(this.totalRounds,this.maxPlayers,this.difficulty)
-    this.words = new Words(this.roomId, wordList);
     players.forEach(p => {
       sendChatEvent({ 
         roomId: this.roomId, 
@@ -327,6 +327,16 @@ export default class Game {
         color: 'green'
       });
     });
+    sendChatEvent({ 
+      roomId: this.roomId, 
+      system: true, 
+      message: ` The Game is starting...`,
+      color: 'blue'
+    });
+    // Generate words for the game
+    const wordList = await generateWordList(this.totalRounds,this.maxPlayers,this.difficulty)
+    this.words = new Words(this.roomId, wordList);
+
     this._startWordSelection();
   }
 
