@@ -152,18 +152,6 @@ export default class Game {
     this.timer.addCheckpoint(0,() => this._endTurn() );
   }
 
-  async _createTimerForRestart(){
-    this.timer = new Timer({ 
-      roomId: this.roomId,
-      durationSec: 5,
-      type: "RESTART_GAME"
-    });
-    this.timer.start();
-    this.timer.addCheckpoint(0,() => {
-      this._restartGame();
-    });
-  }
-
   async _createTimerForWordSelection(){
     this.timer = new Timer({ 
       roomId: this.roomId,
@@ -304,7 +292,7 @@ export default class Game {
     emitGameEndedEvent(this.roomId, { scores, phase:  PHASE.GAME_ENDED});
     this.started = false;
     updateRoomGameStatus(this.roomId, false);
-    this._createTimerForRestart();
+    this._restartGame();
   }
 
   _restartGame() {
