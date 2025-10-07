@@ -7,7 +7,7 @@ import { useGame } from "../../context/GameContext";
 export default function Canvas({isDrawer,roomId}) {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [lineWidth, setLineWidth] = useState(5);
+  const [lineWidth, setLineWidth] = useState(3);
   const [color, setColor] = useState("#000000");
   const [tool, setTool] = useState("pen"); // 'pen' | 'eraser' | 'fill'
   const [ctx, setCtx] = useState(null);
@@ -392,7 +392,7 @@ export default function Canvas({isDrawer,roomId}) {
             <button onClick={undo}>↩️ </button>
             <button onClick={redo}>↪️ </button>
             <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-            <input type="range" min="3" max="30" value={lineWidth} onChange={(e) => setLineWidth(parseInt(e.target.value))} />
+            <input type="range" min="1" max="15" value={lineWidth} onChange={(e) => setLineWidth(parseInt(e.target.value))} />
           </div>
 
           <div className="palette-container">
