@@ -232,8 +232,8 @@ export default class Game {
     if (this.guessedIds.has(socketId)) return;
     const guess = guessRaw.trim().toLowerCase();
     const drawerId = this.players[this.drawerIndex].id;
-    
-    if (this.words.isCorrectGuess(guess)) {
+
+    if (this.turn === PHASE.TURN && (this.words.isCorrectGuess(guess))) {
       const points = this._calculateScore();
       if (p) {
         this.guessedIds.add(p.id);
@@ -253,7 +253,7 @@ export default class Game {
         }
       }
     } else {
-      sendChatEvent({roomId: this.roomId, system:false, username: p.name, message: guess  });
+      sendChatEvent({roomId: this.roomId, system:false, username: p.name, message: guessRaw  });
     }
   }
 
