@@ -1,10 +1,15 @@
-import { useRef, useEffect, useState, useCallback, use } from "react";
+"use client";
+import { useRef, useEffect, useState, useCallback } from "react";
 import "./Canvas.css";
 import { useSocket } from "../../context/SocketContext";
-import { onFillEvent, clearCanvasEvent, drawStrokeEvent } from "../../services/emitGameEvents";
+import {
+  onFillEvent,
+  clearCanvasEvent,
+  drawStrokeEvent,
+} from "../../services/emitGameEvents";
 import { useGame } from "../../context/GameContext";
 
-export default function Canvas({isDrawer,roomId}) {
+export default function Canvas({ isDrawer, roomId }) {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [lineWidth, setLineWidth] = useState(3);
@@ -15,15 +20,8 @@ export default function Canvas({isDrawer,roomId}) {
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const colors = [
-    "#000000", // black
-    "#ff0000", // red
-    "#00ff00", // green
-    "#0000ff", // blue
-    "#ffff00", // yellow
-    "#ffd700", // gold
-    "#8b4513", // brown
-    "#ff69b4", // pink
-    "#808080"  // grey
+    "#000000", "#ff0000", "#00ff00", "#0000ff",
+    "#ffff00", "#ffd700", "#8b4513", "#ff69b4", "#808080"
   ];
 
   const socket = useSocket();
@@ -58,7 +56,6 @@ export default function Canvas({isDrawer,roomId}) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    // scale factor from CSS pixels → canvas pixels
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
@@ -68,16 +65,13 @@ export default function Canvas({isDrawer,roomId}) {
     };
   };
 
-
   const saveState = useCallback(() => {
     if (!ctx) return;
     try {
       const snap = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
       setUndoStack((u) => [...u, snap]);
       setRedoStack([]);
-    } catch (_) {
-      // cross-origin image drawn -> canvas tainted; skip undo
-    }
+    } catch (_) {}
   }, [ctx]);
 
   const undo = () => {
@@ -95,14 +89,12 @@ export default function Canvas({isDrawer,roomId}) {
 
   const getCanvasImage = () => {
     if (!canvasRef.current) return null;
-    return canvasRef.current.toDataURL("image/png"); // Base64 image string
+    return canvasRef.current.toDataURL("image/png");
   };
 
   const emitCanvasSnapshot = () => {
     const image = getCanvasImage();
-    if (image) {
-      socket.emit("CANVAS_SYNC", { roomId, image });
-    }
+    if (image) socket.emit("CANVAS_SYNC", { roomId, image });
   };
 
   const redo = () => {
@@ -128,19 +120,18 @@ export default function Canvas({isDrawer,roomId}) {
     ctx.lineWidth = lineWidth;
   };
 
-
-
-  // ---------- Flood Fill (bucket) ----------
+  // ---------- Flood Fill ----------
   const hexToRgbA = (hex) => {
     const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return m ? [parseInt(m[0x1], 16), parseInt(m[0x2], 16), parseInt(m[0x3], 16), 255] : [0, 0, 0, 255];
+    return m
+      ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16), 255]
+      : [0, 0, 0, 255];
   };
 
   const colorClose = (c1, c2, tol) =>
     Math.abs(c1[0] - c2[0]) <= tol &&
     Math.abs(c1[1] - c2[1]) <= tol &&
-    Math.abs(c1[2] - c2[2]) <= tol &&
-    Math.abs((c1[3] ?? 255) - (c2[3] ?? 255)) <= 255; // ignore alpha tolerance
+    Math.abs(c1[2] - c2[2]) <= tol;
 
   const floodFillLocal = useCallback(
     (x, y, fillHex, tolerance = 25) => {
@@ -154,15 +145,7 @@ export default function Canvas({isDrawer,roomId}) {
       const startCol = [data[i0], data[i0 + 1], data[i0 + 2], data[i0 + 3]];
       const target = hexToRgbA(fillHex);
 
-      // if pixel already equals target, skip
-      if (
-        startCol[0] === target[0] &&
-        startCol[1] === target[1] &&
-        startCol[2] === target[2] &&
-        startCol[3] === target[3]
-      ) {
-        return;
-      }
+      if (startCol.every((v, i) => v === target[i])) return;
 
       const stack = [[Math.floor(x), Math.floor(y)]];
       const visited = new Uint8Array(w * h);
@@ -175,13 +158,11 @@ export default function Canvas({isDrawer,roomId}) {
         visited[p >> 2] = 1;
 
         const cur = [data[p], data[p + 1], data[p + 2], data[p + 3]];
-        if (colorClose(cur, startCol, tolerance) || cur[3] < 220) {
-          // replace
+        if (colorClose(cur, startCol, tolerance)) {
           data[p] = target[0];
           data[p + 1] = target[1];
           data[p + 2] = target[2];
           data[p + 3] = 255;
-
           stack.push([cx + 1, cy]);
           stack.push([cx - 1, cy]);
           stack.push([cx, cy + 1]);
@@ -194,7 +175,7 @@ export default function Canvas({isDrawer,roomId}) {
     [ctx]
   );
 
-  // ---------- Mouse / Touch ----------
+  // ---------- Mouse/Touch Handlers ----------
   const start = (e) => {
     if (!isDrawer || !ctx) return;
     if (e.touches) e.preventDefault();
@@ -209,7 +190,6 @@ export default function Canvas({isDrawer,roomId}) {
     }
 
     saveState();
-
     if (tool === "eraser") {
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
@@ -242,7 +222,6 @@ export default function Canvas({isDrawer,roomId}) {
     ctx.lineTo(x, y);
     ctx.stroke();
 
-    // broadcast stroke
     drawStrokeEvent(roomId, {
       x0: lastPos.x,
       y0: lastPos.y,
@@ -275,38 +254,48 @@ export default function Canvas({isDrawer,roomId}) {
     link.click();
   };
 
-  // ---------- Socket listeners (replicate actions) ----------
+  // ---------- FIX: Non-passive Touch Events ----------
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", move, { passive: false });
+    canvas.addEventListener("touchend", end, { passive: false });
+    canvas.addEventListener("touchcancel", end, { passive: false });
+
+    return () => {
+      canvas.removeEventListener("touchstart", start);
+      canvas.removeEventListener("touchmove", move);
+      canvas.removeEventListener("touchend", end);
+      canvas.removeEventListener("touchcancel", end);
+    };
+  }, [start, move, end]);
+
+  // ---------- Socket listeners ----------
   useEffect(() => {
     if (!socket || !ctx) return;
 
     const onDraw = ({ x0, y0, x1, y1, color, lineWidth, tool }) => {
-      console.log("event received: DRAW", { x0, y0, x1, y1, color, lineWidth, tool });
       ctx.beginPath();
       if (tool === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
-        ctx.lineWidth = lineWidth;
       } else {
         ctx.globalCompositeOperation = "source-over";
         ctx.strokeStyle = color;
-        ctx.lineWidth = lineWidth;
       }
+      ctx.lineWidth = lineWidth;
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
       ctx.stroke();
     };
 
-    const onClear = () => {
-      console.log("event received: CLEAR_CANVAS");
-      clearLocal();
-    };
+    const onClear = () => clearLocal();
 
-    const onFill = ({ x, y, color, tolerance = 25 }) => {
-      console.log("event received: ON_FILL", { x, y, color, tolerance });
+    const onFill = ({ x, y, color, tolerance }) =>
       floodFillLocal(x, y, color, tolerance);
-    };
 
     const onCanvasSync = ({ image }) => {
-      console.log("event received: CANVAS_SYNC");
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -314,21 +303,11 @@ export default function Canvas({isDrawer,roomId}) {
       };
       img.src = image;
     };
-
+    
     const onGetCanvas = ({ requestId }) => {
       console.log("event received: GET_CANVAS", { requestId });
       const image = ctx.canvas.toDataURL();
       socket.emit("CANVAS_IMAGE", { roomId, requestId, image });
-    };
-
-    const onGameState = (payload) => {
-      console.log("event received: GAME_STATE", payload);
-      const img = new Image();
-      img.onload = () => {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
-      };
-      img.src = payload.image;
     };
 
     socket.on("DRAW", onDraw);
@@ -336,7 +315,6 @@ export default function Canvas({isDrawer,roomId}) {
     socket.on("ON_FILL", onFill);
     socket.on("CANVAS_SYNC", onCanvasSync);
     socket.on("GET_CANVAS", onGetCanvas);
-    socket.on("GAME_STATE", onGameState);
 
     return () => {
       socket.off("DRAW", onDraw);
@@ -344,22 +322,13 @@ export default function Canvas({isDrawer,roomId}) {
       socket.off("ON_FILL", onFill);
       socket.off("CANVAS_SYNC", onCanvasSync);
       socket.off("GET_CANVAS", onGetCanvas);
-      socket.off("GAME_STATE", onGameState);
     };
-  }, [socket, ctx]);
+  }, [socket, ctx, floodFillLocal]);
 
   useEffect(() => {
     if (!ctx) return;
-
-    console.log("First check if canvas image is there");
     const canvasImage = getImage();
-
-    if (!canvasImage) {
-      console.log("No canvas image available yet");
-      return;
-    }
-
-    console.log("Loading canvas image from game state");
+    if (!canvasImage) return;
     const img = new Image();
     img.onload = () => {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -370,7 +339,6 @@ export default function Canvas({isDrawer,roomId}) {
 
   return (
     <div className="canvas-wrapper">
-
       <canvas
         ref={canvasRef}
         className={`Canvas ${isDrawer ? "Canvas--active" : "Canvas--spectator"}`}
@@ -378,26 +346,22 @@ export default function Canvas({isDrawer,roomId}) {
         onMouseMove={move}
         onMouseUp={end}
         onMouseLeave={end}
-        onTouchStart={start}
-        onTouchMove={move}
-        onTouchEnd={end}
       />
       {isDrawer && (
         <div className="canvas-toolbar">
           <div className="tool-group">
             <button onClick={() => setTool("pen")} className={tool === "pen" ? "active" : ""}>✏️</button>
-            <button onClick={() => setTool("eraser")} className={tool === "eraser" ? "active" : ""}>🧽 </button>
-            <button onClick={() => setTool("fill")} className={tool === "fill" ? "active" : ""}>🪣 </button>
-            <button onClick={clear}>🗑️ </button>
-            <button onClick={undo}>↩️ </button>
-            <button onClick={redo}>↪️ </button>
+            <button onClick={() => setTool("eraser")} className={tool === "eraser" ? "active" : ""}>🧽</button>
+            <button onClick={() => setTool("fill")} className={tool === "fill" ? "active" : ""}>🪣</button>
+            <button onClick={clear}>🗑️</button>
+            <button onClick={undo}>↩️</button>
+            <button onClick={redo}>↪️</button>
             <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
             <input type="range" min="1" max="15" value={lineWidth} onChange={(e) => setLineWidth(parseInt(e.target.value))} />
           </div>
 
           <div className="palette-container">
-            <div className="current-tool">Selected: {tool}
-            </div>
+            <div className="current-tool">Selected: {tool}</div>
             <div className="palette">
               {colors.map((c) => (
                 <button
@@ -409,7 +373,6 @@ export default function Canvas({isDrawer,roomId}) {
                 />
               ))}
             </div>
-
           </div>
         </div>
       )}
